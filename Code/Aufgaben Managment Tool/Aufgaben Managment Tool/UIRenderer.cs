@@ -19,7 +19,7 @@ namespace Aufgaben_Managment_Tool
             new Layout("HeaderRight").Update(
                 new Panel(Align.Right(headerRightMarkup, VerticalAlignment.Middle)).Expand());
 
-        public static void UIMain(Markup menuText, string menuTitle)
+        public static void UIMain(List<Markup> menuText, string menuTitle)
         {
             int totalHeight = Console.WindowHeight;
 
@@ -48,11 +48,11 @@ namespace Aufgaben_Managment_Tool
 
             mainLayout["HeaderLeft"].Update(HeaderLeft);
             mainLayout["HeaderRight"].Update(HeaderRight);
-            mainLayout["BodyLeft"].Update(MenuSystem.MainMenu(menuText, menuTitle));
+            mainLayout["BodyLeft"].Update(MenuSystem.MenuPanel(menuText, menuTitle));
 
 
             AnsiConsole.Write(mainLayout);
-            MenuSystem.UserMenuChoice();
+            MenuSystem.UserMenuChoice(menuText);
         }
     }
 }
