@@ -21,6 +21,7 @@ namespace Aufgaben_Managment_Tool
 
         public static void UIMain(List<Markup> menuText, string menuTitle)
         {
+            AnsiConsole.Clear();
             int totalHeight = Console.WindowHeight;
 
             int headerHeight = (int)(totalHeight * 0.20);

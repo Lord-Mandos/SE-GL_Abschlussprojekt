@@ -12,6 +12,27 @@ namespace Aufgaben_Managment_Tool
             new Markup("[green]>[/] 4. Abmelden"),
             new Markup("[green]>[/] 5. Beenden")
         };
+        public static List<Markup> taskMenuText = new List<Markup>
+        {
+            new Markup("[green]>[/] 1. Aufgabe erstellen"),
+            new Markup("[green]>[/] 2. Aufgabe anzeigen"),
+            new Markup("[green]>[/] 3. Aufgabe bearbeiten"),
+            new Markup("[green]>[/] 4. Aufgabe löschen"),
+            new Markup("[green]>[/] 5. Zurück")
+        };
+        public static List<Markup> kanbanBoardMenuText = new List<Markup>
+        {
+            new Markup("[green]>[/] 1. Board anzeigen"),
+            new Markup("[green]>[/] 2. Board bearbeiten"),
+            new Markup("[green]>[/] 3. Board löschen"),
+            new Markup("[green]>[/] 4. Zurück")
+        };
+        public static List<Markup> searchMenuText = new List<Markup>
+        {
+            new Markup("[green]>[/] 1. Nach ID suchen"),
+            new Markup("[green]>[/] 2. Nach Titel suchen"),
+            new Markup("[green]>[/] 3. Zurück")
+        };
         public static Panel MenuPanel(List<Markup> menuText, string menuTitle)
         {
             var panel = new Panel(new Panel(Align.Left
@@ -36,13 +57,13 @@ namespace Aufgaben_Managment_Tool
                 switch (choice)
                 {
                     case 1:
-                        //UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 2:
-                        //UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
+                        UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 3:
-                        //UIRenderer.UIMain(searchMenuText, "Suchen");
+                        UIRenderer.UIMain(searchMenuText, "Suchen");
                         break;
                     case 4:
                         // Abmelden logic here                        
@@ -57,18 +78,64 @@ namespace Aufgaben_Managment_Tool
                         break;
                 }
             }
-            //else if (menuText == taskMenuText)
-            //{
-            //    switch (choice) { }
-            //}
-            //else if (menuText == kanbanBoardMenuText)
-            //{
-            //    switch (choice) { }
-            //}
-            //else if (menuText == searchMenuText)
-            //{
-            //    switch (choice) { }
-            //}
+            else if (menuText == taskMenuText)
+            {
+                switch (choice)
+                {
+                    case 1:
+                        // Aufgabe erstellen logic here
+                        break;
+                    case 2:
+                        // Aufgabe anzeigen logic here
+                        break;
+                    case 3:
+                        // Aufgabe bearbeiten logic here
+                        break;
+                    case 4:
+                        // Aufgabe löschen logic here
+                        break;
+                    case 5:
+                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        break;
+                    default:
+                        AnsiConsole.MarkupLine("[red]Ungültige Auswahl. Bitte versuchen Sie es erneut.[/]");
+                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        break;
+                }
+            }
+            else if (menuText == kanbanBoardMenuText)
+            {
+                switch (choice)
+                {
+                    case 1:
+                        // Board anzeigen logic here
+                        break;
+                    case 2:
+                        // Board bearbeiten logic here
+                        break;
+                    case 3:
+                        // Board löschen logic here
+                        break;
+                    case 4:
+                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        break;
+                }
+            }
+            else if (menuText == searchMenuText)
+            {
+                switch (choice)
+                {
+                    case 1:
+                        // Nach ID suchen logic here
+                        break;
+                    case 2:
+                        // Nach Titel suchen logic here
+                        break;
+                    case 3:
+                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        break;
+                }
+            }
             else { return; }
         }
     }
