@@ -10,7 +10,8 @@ namespace Aufgaben_Managment_Tool
             new Markup("[green]>[/] 2. Kanban-Board"),
             new Markup("[green]>[/] 3. Suchen"),
             new Markup("[green]>[/] 4. Abmelden"),
-            new Markup("[green]>[/] 5. Beenden")
+            new Markup("[green]>[/] 5. Benutzerverwaltung"),
+            new Markup("[green]>[/] 6. Beenden")
         };
         public static List<Markup> taskMenuText = new List<Markup>
         {
@@ -33,6 +34,14 @@ namespace Aufgaben_Managment_Tool
             new Markup("[green]>[/] 2. Nach Titel suchen"),
             new Markup("[green]>[/] 3. Zurück")
         };
+        public static List<Markup> userMenuText = new List<Markup>
+        {
+            new Markup("[green]>[/] 1. Benutzer erstellen"),
+            new Markup("[green]>[/] 2. Benutzer anzeigen"),
+            new Markup("[green]>[/] 3. Benutzer bearbeiten"),
+            new Markup("[green]>[/] 4. Benutzer löschen"),
+            new Markup("[green]>[/] 5. Zurück")
+        };
         public static Panel MenuPanel(List<Markup> menuText, string menuTitle)
         {
             var panel = new Panel(new Panel(Align.Left
@@ -51,7 +60,7 @@ namespace Aufgaben_Managment_Tool
 
         public static void UserMenuChoice(List<Markup> menuText)
         {
-            int choice = AnsiConsole.Ask<int>("Bitte wählen Sie eine Option:");
+            int choice = AnsiConsole.Prompt<int> (new TextPrompt<int>("Bitte wählen Sie eine Option:"));
             if (menuText == mainMenuText)
             {
                 switch (choice)
@@ -69,6 +78,9 @@ namespace Aufgaben_Managment_Tool
                         // Abmelden logic here                        
                         break;
                     case 5:
+                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        break;
+                    case 6:
                         AnsiConsole.MarkupLine("[red]Programm wird beendet...[/]");
                         Environment.Exit(0);
                         break;
@@ -132,6 +144,31 @@ namespace Aufgaben_Managment_Tool
                         // Nach Titel suchen logic here
                         break;
                     case 3:
+                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        break;
+                }
+            }
+            else if (menuText == userMenuText)
+            {
+                switch (choice)
+                {
+                    case 1:
+                        UserService.CreateUser();
+                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        break;
+                    case 2:
+                        UserService.GetUsers();
+                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        break;
+                    case 3:
+                        UserService.UpdateUser();
+                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        break;
+                    case 4:
+                        UserService.DeleteUser();
+                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        break;
+                    case 5:
                         UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         break;
                 }
