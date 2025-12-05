@@ -5,20 +5,6 @@ namespace Aufgaben_Managment_Tool
 {
     internal class UIRenderer
     {
-        private readonly static Markup headerLeftMarkup =
-            new Markup($"Programm name");
-
-        private readonly static Layout HeaderLeft =
-            new Layout("HeaderLeft").Update(
-                new Panel(Align.Left(headerLeftMarkup, VerticalAlignment.Middle)).Expand());
-
-        private readonly static Markup headerRightMarkup =
-            new Markup($"{DateOnly.FromDateTime(DateTime.Now)}");
-
-        private readonly static Layout HeaderRight =
-            new Layout("HeaderRight").Update(
-                new Panel(Align.Right(headerRightMarkup, VerticalAlignment.Middle)).Expand());
-
         public static void UIMain(List<Markup> menuText, string menuTitle)
         {
             Refresh(menuText, menuTitle);
@@ -51,15 +37,14 @@ namespace Aufgaben_Managment_Tool
             mainLayout["BodyRight"].Ratio = 2;
             mainLayout["HeaderRight"].Ratio = 2;
 
-            var headerLeft = new Panel(Align.Left(new Markup("Programm name"), VerticalAlignment.Middle)).Expand();
-            var headerRight = new Panel(Align.Right(new Markup($"{DateOnly.FromDateTime(DateTime.Now)}"), VerticalAlignment.Middle)).Expand();
-
-            mainLayout["HeaderLeft"].Update(headerLeft);
-            mainLayout["HeaderRight"].Update(headerRight);
+            mainLayout["HeaderLeft"].Update(HeaderFooterManager.GetHeaderLeft());
+            mainLayout["HeaderRight"].Update(HeaderFooterManager.GetHeaderRight());
 
             mainLayout["BodyLeft"].Update(MenuSystem.MenuPanel(menuText, menuTitle));
 
             mainLayout["BodyRight"].Update(BodyRightManager.GetPanel());
+
+            mainLayout["Footer"].Update(HeaderFooterManager.GetFooter());
 
             AnsiConsole.Write(mainLayout);
         }

@@ -57,7 +57,7 @@ namespace Aufgaben_Managment_Tool
                 Header = new PanelHeader($"[yellow]{menuTitle}[/]"),
             })
             {
-                Padding = new Padding(3, 1, 8, 0),
+                Padding = new Padding(3, 1, 7, 0),
                 Expand = true
             };
 
@@ -66,7 +66,10 @@ namespace Aufgaben_Managment_Tool
 
         public static void UserMenuChoice(List<Markup> menuText)
         {
-            int choice = AnsiConsole.Prompt<int>(new TextPrompt<int>("Bitte wählen Sie eine Option:"));
+            int choice = AnsiConsole.Prompt(
+            new TextPrompt<int>("\"Bitte wählen Sie eine Option:\"")
+            .AddChoices(Enumerable.Range(1, menuText.Count)));
+
             if (menuText == mainMenuText)
             {
                 switch (choice)
@@ -85,7 +88,6 @@ namespace Aufgaben_Managment_Tool
                         UIRenderer.UIMain(StartMenu, "Startmenü");
                         break;
                     case 5:
-                        // Zugriff nur für Admins erlauben
                         if (Session.CurrentUser != null && Session.CurrentUser.Role == UserRole.Admin)
                         {
                             UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
