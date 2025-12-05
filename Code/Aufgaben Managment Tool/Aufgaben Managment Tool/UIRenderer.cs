@@ -50,6 +50,7 @@ namespace Aufgaben_Managment_Tool
             mainLayout["HeaderLeft"].Update(HeaderLeft);
             mainLayout["HeaderRight"].Update(HeaderRight);
             mainLayout["BodyLeft"].Update(MenuSystem.MenuPanel(menuText, menuTitle));
+            mainLayout["BodyRight"].Update(BodyRightManager.GetPanel());
 
 
             AnsiConsole.Write(mainLayout);
