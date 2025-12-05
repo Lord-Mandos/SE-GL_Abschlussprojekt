@@ -6,12 +6,12 @@
 
         public List<User> LoadUsers()
         {
-            return JsonSafeLoad<User>.Load(FilePath);
+            return StorageManager<User>.Load(FilePath);
         }
 
         public void SaveUsers(List<User> users)
         {
-            JsonSafeLoad<User>.Save(FilePath, users);
+            StorageManager<User>.Save(FilePath, users);
         }
 
     }

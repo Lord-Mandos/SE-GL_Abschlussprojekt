@@ -2,7 +2,7 @@
 
 namespace Aufgaben_Managment_Tool
 {
-    internal class JsonSafeLoad<T>
+    internal class StorageManager<T>
     {
         public static List<T> Load(string filePath)
         {
