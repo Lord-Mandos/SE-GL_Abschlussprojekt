@@ -42,6 +42,12 @@ namespace Aufgaben_Managment_Tool
             new Markup("[green]>[/] 4. Benutzer löschen"),
             new Markup("[green]>[/] 5. Zurück")
         };
+        public static List<Markup> StartMenu = new List<Markup>
+        {
+            new Markup("[green]>[/] 1. Login"),
+            new Markup("[green]>[/] 2. Registrierung"),
+            new Markup("[green]>[/] 3. Beenden")
+        };
         public static Panel MenuPanel(List<Markup> menuText, string menuTitle)
         {
             var panel = new Panel(new Panel(Align.Left
@@ -75,7 +81,7 @@ namespace Aufgaben_Managment_Tool
                         UIRenderer.UIMain(searchMenuText, "Suchen");
                         break;
                     case 4:
-                        // Abmelden logic here                        
+                        new AuthManager().Logout();
                         break;
                     case 5:
                         UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
@@ -153,7 +159,7 @@ namespace Aufgaben_Managment_Tool
                 switch (choice)
                 {
                     case 1:
-                        UserService.CreateUser();
+                        UserService.CreateUserAdmin();
                         UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
                         break;
                     case 2:
@@ -170,6 +176,26 @@ namespace Aufgaben_Managment_Tool
                         break;
                     case 5:
                         UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        break;
+                }
+            }
+            else if (menuText == StartMenu)
+            {
+                switch (choice)
+                {
+                    case 1:
+                        new AuthManager().Login();
+                        break;
+                    case 2:
+                        new AuthManager().CreateUser();
+                        break;
+                    case 3:
+                        AnsiConsole.MarkupLine("[red]Programm wird beendet...[/]");
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        AnsiConsole.MarkupLine("[red]Ungültige Auswahl. Bitte versuchen Sie es erneut.[/]");
+                        UIRenderer.UIMain(StartMenu, "Startmenü");
                         break;
                 }
             }

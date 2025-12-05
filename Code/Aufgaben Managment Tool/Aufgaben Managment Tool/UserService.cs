@@ -4,7 +4,7 @@ namespace Aufgaben_Managment_Tool
 {
     internal class UserService
     {
-        public static void CreateUser()
+        public static void CreateUserAdmin()
         {
             var repository = new UserRepository();
             var users = repository.LoadUsers();

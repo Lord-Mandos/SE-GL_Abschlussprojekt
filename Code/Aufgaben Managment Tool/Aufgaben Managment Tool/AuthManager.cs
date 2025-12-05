@@ -48,5 +48,38 @@ internal class AuthManager
     {
         return LoggedInUser != null && LoggedInUser.Role == UserRole.Admin;
     }
+    public void CreateUser()
+    {
+        var repository = new UserRepository();
+        var users = repository.LoadUsers();
+
+        var user = new User();
+
+        user.Username = AnsiConsole.Prompt<string>(
+            new TextPrompt<string>("Bitte geben Sie Ihren Benutzernamen ein:")
+            .PromptStyle("green").Validate(username =>
+            {
+                if (username.Length < 3)
+                {
+                    return ValidationResult.Error("[red]Der Benutzername muss mindestens 3 Zeichen lang sein.[/]");
+                }
+
+                if (users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return ValidationResult.Error("[red]Dieser Benutzername ist bereits vergeben.[/]");
+                }
+
+                return ValidationResult.Success();
+            }));
+
+        user.Role = UserRole.User;
+
+        user.SetPassword();
+
+        users.Add(user);
+        repository.SaveUsers(users);
+
+        AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} mit Rolle {user.Role} wurde erstellt.[/]");
+    }
 
 }
