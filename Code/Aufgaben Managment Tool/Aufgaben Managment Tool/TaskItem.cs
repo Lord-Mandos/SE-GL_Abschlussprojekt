@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Aufgaben_Managment_Tool
 {
-    internal class Task
+    internal class TaskItem
     {
         public Guid Id { get; set; }
         public string Title { get; set; }

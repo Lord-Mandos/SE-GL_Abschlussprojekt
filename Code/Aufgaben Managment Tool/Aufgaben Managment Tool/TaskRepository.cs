@@ -7,13 +7,13 @@ namespace Aufgaben_Managment_Tool
     internal class TaskRepository
     {
         private const string FilePath = "tasks.json";
-        public List<Task> LoadTasks()
+        public List<TaskItem> LoadTasks()
         {
-           return StorageManager<Task>.Load(FilePath);
+           return StorageManager<TaskItem>.Load(FilePath);
         }
-        public void SaveTasks(List<Task> tasks)
+        public void SaveTasks(List<TaskItem> tasks)
         {
-            StorageManager<Task>.Save(FilePath, tasks);
+            StorageManager<TaskItem>.Save(FilePath, tasks);
         }
     }
 }
