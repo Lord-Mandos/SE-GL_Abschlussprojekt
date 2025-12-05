@@ -4,14 +4,12 @@ namespace Aufgaben_Managment_Tool
 {
     internal class TaskService
     {
-        private readonly TaskRepository _taskRepository;
-        public TaskService()
-        {
-            _taskRepository = new TaskRepository();
-        }
 
-        public void createTask()
+
+
+        public static void createTask()
         {
+            var _taskRepository = new TaskRepository();
 
             var tasks = _taskRepository.LoadTasks();
 
@@ -43,8 +41,9 @@ namespace Aufgaben_Managment_Tool
             tasks.Add(newTask);
             _taskRepository.SaveTasks(tasks);
         }
-        public void deleteTask()
+        public static void deleteTask()
         {
+            var _taskRepository = new TaskRepository();
             var tasks = _taskRepository.LoadTasks();
             var taskTitle = AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("[bold yellow]Geben Sie den Titel der zu löschenden Aufgabe ein:[/]")
@@ -62,16 +61,11 @@ namespace Aufgaben_Managment_Tool
                 AnsiConsole.MarkupLine("[bold red]Aufgabe nicht gefunden![/]");
             }
         }
-        public List<TaskItem> getTasks()
-        {
-            var repository = new TaskRepository();
-            var tasks = repository.LoadTasks();
-            return tasks;
-        }
 
-        public void updateTask()
+        public static void updateTask()
         {
 
+            var _taskRepository = new TaskRepository();
             var tasks = _taskRepository.LoadTasks();
 
             var taskTitle = AnsiConsole.Prompt<string>(

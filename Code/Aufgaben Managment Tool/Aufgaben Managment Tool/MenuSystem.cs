@@ -101,16 +101,16 @@ namespace Aufgaben_Managment_Tool
                 switch (choice)
                 {
                     case 1:
-                        // Aufgabe erstellen logic here
+                        TaskService.createTask();
                         break;
                     case 2:
                         // Aufgabe anzeigen logic here
                         break;
                     case 3:
-                        // Aufgabe bearbeiten logic here
+                        TaskService.updateTask();
                         break;
                     case 4:
-                        // Aufgabe löschen logic here
+                        TaskService.deleteTask();
                         break;
                     case 5:
                         UIRenderer.UIMain(mainMenuText, "Hauptmenü");
