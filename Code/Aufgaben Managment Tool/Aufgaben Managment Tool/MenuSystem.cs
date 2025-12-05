@@ -66,7 +66,7 @@ namespace Aufgaben_Managment_Tool
 
         public static void UserMenuChoice(List<Markup> menuText)
         {
-            int choice = AnsiConsole.Prompt<int> (new TextPrompt<int>("Bitte wählen Sie eine Option:"));
+            int choice = AnsiConsole.Prompt<int>(new TextPrompt<int>("Bitte wählen Sie eine Option:"));
             if (menuText == mainMenuText)
             {
                 switch (choice)
@@ -82,9 +82,19 @@ namespace Aufgaben_Managment_Tool
                         break;
                     case 4:
                         new AuthManager().Logout();
+                        UIRenderer.UIMain(StartMenu, "Startmenü");
                         break;
                     case 5:
-                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        // Zugriff nur für Admins erlauben
+                        if (Session.CurrentUser != null && Session.CurrentUser.Role == UserRole.Admin)
+                        {
+                            UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine("[red]Zugriff verweigert: Nur Administratoren dürfen die Benutzerverwaltung nutzen.[/]");
+                            UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        }
                         break;
                     case 6:
                         AnsiConsole.MarkupLine("[red]Programm wird beendet...[/]");
@@ -184,10 +194,19 @@ namespace Aufgaben_Managment_Tool
                 switch (choice)
                 {
                     case 1:
-                        new AuthManager().Login();
+                        var auth = new AuthManager();
+                        if (auth.Login())
+                        {
+                            UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        }
+                        else
+                        {
+                            UIRenderer.UIMain(StartMenu, "Startmenü");
+                        }
                         break;
                     case 2:
                         new AuthManager().CreateUser();
+                        UIRenderer.UIMain(StartMenu, "Startmenü");
                         break;
                     case 3:
                         AnsiConsole.MarkupLine("[red]Programm wird beendet...[/]");

@@ -1,4 +1,6 @@
 ﻿using Spectre.Console;
+using System;
+using System.Linq;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -40,6 +42,41 @@ namespace Aufgaben_Managment_Tool
 
             AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} mit Rolle {user.Role} wurde erstellt.[/]");
         }
+
+        public static void CreateUser()
+        {
+            var repository = new UserRepository();
+            var users = repository.LoadUsers();
+
+            var user = new User();
+
+            user.Username = AnsiConsole.Prompt<string>(
+                new TextPrompt<string>("Bitte wählen Sie Ihren Benutzernamen (Registrierung):")
+                .PromptStyle("green").Validate(username =>
+                {
+                    if (username.Length < 3)
+                    {
+                        return ValidationResult.Error("[red]Der Benutzername muss mindestens 3 Zeichen lang sein.[/]");
+                    }
+
+                    if (users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return ValidationResult.Error("[red]Dieser Benutzername ist bereits vergeben.[/]");
+                    }
+
+                    return ValidationResult.Success();
+                }));
+
+            user.Role = UserRole.User;
+
+            user.SetPassword();
+
+            users.Add(user);
+            repository.SaveUsers(users);
+
+            AnsiConsole.MarkupLine($"[green]Registrierung erfolgreich. Benutzer {user.Username} wurde mit Rolle {user.Role} angelegt.[/]");
+        }
+
         public static void GetUsers()
         {
             var repository = new UserRepository();

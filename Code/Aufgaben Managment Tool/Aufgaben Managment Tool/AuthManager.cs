@@ -1,85 +1,59 @@
-﻿namespace Aufgaben_Managment_Tool;
+﻿using Spectre.Console;
+using System;
 
-using Spectre.Console;
-
-internal class AuthManager
+namespace Aufgaben_Managment_Tool
 {
-    public User? LoggedInUser { get; private set; }
-
-
-
-    public bool Login()
+    internal class AuthManager
     {
-        var repository = new UserRepository();
-        var users = repository.LoadUsers();
-        
-        var username = AnsiConsole.Prompt<string>(
-            new TextPrompt<string>("Bitte geben Sie Ihren Benutzernamen ein:")
-            .PromptStyle("green"));
-        
-        var user = users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
-        Console.WriteLine("Debug: Gefundener Benutzer: " + (user != null ? user.Username : "null"));
-        if (user != null && user.ValidatePassword())
-        {
-            LoggedInUser = user;
-            AnsiConsole.MarkupLine($"[green]Erfolgreich eingeloggt als {user.Username}.[/]");
-            return true;
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[red]Ungültiger Benutzername oder Passwort.[/]");
-            return false;
-        }
+        public User? LoggedInUser => Session.CurrentUser;
 
-    }
-    public  void Logout()
-    {
-        if (LoggedInUser != null)
+        public bool Login()
         {
-            AnsiConsole.MarkupLine($"[yellow]Benutzer {LoggedInUser.Username} wurde abgemeldet.[/]");
-            LoggedInUser = null;
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[red]Kein Benutzer ist derzeit angemeldet.[/]");
-        }
-    }
-    public bool IsAdmin()
-    {
-        return LoggedInUser != null && LoggedInUser.Role == UserRole.Admin;
-    }
-    public void CreateUser()
-    {
-        var repository = new UserRepository();
-        var users = repository.LoadUsers();
+            var repository = new UserRepository();
+            var users = repository.LoadUsers();
 
-        var user = new User();
+            var username = AnsiConsole.Prompt<string>(
+                new TextPrompt<string>("Bitte geben Sie Ihren Benutzernamen ein:")
+                .PromptStyle("green"));
 
-        user.Username = AnsiConsole.Prompt<string>(
-            new TextPrompt<string>("Bitte geben Sie Ihren Benutzernamen ein:")
-            .PromptStyle("green").Validate(username =>
+            var user = users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            Console.WriteLine("Debug: Gefundener Benutzer: " + (user != null ? user.Username : "null"));
+
+            if (user != null && user.ValidatePassword())
             {
-                if (username.Length < 3)
-                {
-                    return ValidationResult.Error("[red]Der Benutzername muss mindestens 3 Zeichen lang sein.[/]");
-                }
+                // In Session speichern, damit andere Klassen darauf zugreifen können
+                Session.CurrentUser = user;
+                AnsiConsole.MarkupLine($"[green]Erfolgreich eingeloggt als {user.Username}.[/]");
+                return true;
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[red]Ungültiger Benutzername oder Passwort.[/]");
+                return false;
+            }
+        }
 
-                if (users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
-                {
-                    return ValidationResult.Error("[red]Dieser Benutzername ist bereits vergeben.[/]");
-                }
+        public void CreateUser()
+        {
+            UserService.CreateUser();
+        }
 
-                return ValidationResult.Success();
-            }));
+        public void Logout()
+        {
+            if (Session.CurrentUser != null)
+            {
+                AnsiConsole.MarkupLine($"[yellow]Benutzer {Session.CurrentUser.Username} wurde abgemeldet.[/]");
+                Session.CurrentUser = null;
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[red]Kein Benutzer ist derzeit angemeldet.[/]");
+            }
+        }
 
-        user.Role = UserRole.User;
-
-        user.SetPassword();
-
-        users.Add(user);
-        repository.SaveUsers(users);
-
-        AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} mit Rolle {user.Role} wurde erstellt.[/]");
+        public bool IsAdmin()
+        {
+            return Session.CurrentUser != null && Session.CurrentUser.Role == UserRole.Admin;
+        }
     }
-
 }
