@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using System.Text.Json.Serialization;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -6,7 +7,9 @@ namespace Aufgaben_Managment_Tool
     {
         public string Username { get; set; }
         public UserRole Role { get; set; }
+        [JsonInclude]
         public string PasswordHash { get; private set; }
+        [JsonInclude]
         public byte[] Salt { get; private set; }
 
         public void SetPassword()
@@ -18,15 +21,13 @@ namespace Aufgaben_Managment_Tool
             Salt = PasswordHelper.GenerateSalt();
             PasswordHash = PasswordHelper.HashPassword(password, Salt);
         }
-        public void ValidatePassword()
+        public bool ValidatePassword()
         {
             var password = AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("Bitte geben Sie Ihr Passwort ein:")
                 .PromptStyle("red")
                 .Secret());
-            PasswordHelper.VerifyPassword(password, this.Salt, this.PasswordHash);
-
+            return PasswordHelper.VerifyPassword(password, this.Salt, this.PasswordHash);
         }
-
     }
 }

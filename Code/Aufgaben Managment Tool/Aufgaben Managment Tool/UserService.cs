@@ -31,7 +31,7 @@ namespace Aufgaben_Managment_Tool
             user.Role = AnsiConsole.Prompt<UserRole>(
                 new SelectionPrompt<UserRole>()
                 .Title("Bitte wählen Sie Ihre Rolle:")
-                .AddChoices(UserRole.admin, UserRole.user));
+                .AddChoices(UserRole.Admin, UserRole.User));
 
             user.SetPassword();
 
@@ -91,7 +91,7 @@ namespace Aufgaben_Managment_Tool
             user.Role = AnsiConsole.Prompt<UserRole>(
                 new SelectionPrompt<UserRole>()
                 .Title("Bitte wählen Sie die neue Rolle:")
-                .AddChoices(UserRole.admin, UserRole.user));
+                .AddChoices(UserRole.Admin, UserRole.User));
 
             bool changePassword = AnsiConsole.Confirm("Möchten Sie das Passwort ändern?");
             if (changePassword)
@@ -115,7 +115,7 @@ namespace Aufgaben_Managment_Tool
                 return;
             }
 
-            if (user.Role == UserRole.admin)
+            if (user.Role == UserRole.Admin)
             {
                 AnsiConsole.MarkupLine("[red]Der Administrator kann nicht gelöscht werden![/]");
                 return;
