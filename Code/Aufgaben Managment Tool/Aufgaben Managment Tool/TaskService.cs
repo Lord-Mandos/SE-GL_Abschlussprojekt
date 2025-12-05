@@ -1,12 +1,11 @@
 ﻿using Spectre.Console;
+using System;
+using System.Linq;
 
 namespace Aufgaben_Managment_Tool
 {
     internal class TaskService
     {
-
-
-
         public static void createTask()
         {
             var _taskRepository = new TaskRepository();
@@ -40,6 +39,22 @@ namespace Aufgaben_Managment_Tool
 
             tasks.Add(newTask);
             _taskRepository.SaveTasks(tasks);
+
+            var total = tasks.Count;
+            var open = tasks.Count(t => t.Status != TaskState.Done);
+            var today = tasks.Count(t => t.CreateAt.Date == DateTime.Now.Date);
+
+            BodyRightManager.SetTitle($"Aufgabe erstellt: {newTask.Title}");
+            BodyRightManager.Set(
+                $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
+                $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
+                $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{newTask.Title}' erstellt{Environment.NewLine}{Environment.NewLine}" +
+                $"Fälligkeitsdatum: {newTask.DueDate:yyyy-MM-dd}{Environment.NewLine}" +
+                $"Erstellt: {newTask.CreateAt:yyyy-MM-dd HH:mm}"
+            );
+
+            UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
         }
         public static void deleteTask()
         {
@@ -55,11 +70,27 @@ namespace Aufgaben_Managment_Tool
                 tasks.Remove(task);
                 _taskRepository.SaveTasks(tasks);
                 AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich gelöscht![/]");
+
+                var total = tasks.Count;
+                var open = tasks.Count(t => t.Status != TaskState.Done);
+                var today = tasks.Count(t => t.CreateAt.Date == DateTime.Now.Date);
+
+                BodyRightManager.SetTitle($"Aufgabe gelöscht: {task.Title}");
+                BodyRightManager.Set(
+                    $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
+                    $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
+                    $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}" +
+                    $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{task.Title}' gelöscht"
+                );
             }
             else
             {
                 AnsiConsole.MarkupLine("[bold red]Aufgabe nicht gefunden![/]");
+                BodyRightManager.SetTitle("Löschversuch fehlgeschlagen");
+                BodyRightManager.Set($"Letzte Aktion: Löschversuch fehlgeschlagen für Titel '{taskTitle}'");
             }
+
+            UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
         }
 
         public static void updateTask()
@@ -75,6 +106,9 @@ namespace Aufgaben_Managment_Tool
             if (task == null)
             {
                 AnsiConsole.MarkupLine("[bold red]Aufgabe nicht gefunden![/]");
+                BodyRightManager.SetTitle("Bearbeiten fehlgeschlagen");
+                BodyRightManager.Set($"Letzte Aktion: Bearbeiten fehlgeschlagen für Titel '{taskTitle}'");
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -106,6 +140,22 @@ namespace Aufgaben_Managment_Tool
 
             _taskRepository.SaveTasks(tasks);
             AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich aktualisiert![/]");
+
+            var total = tasks.Count;
+            var open = tasks.Count(t => t.Status != TaskState.Done);
+            var today = tasks.Count(t => t.CreateAt.Date == DateTime.Now.Date);
+
+            BodyRightManager.SetTitle($"Aufgabe aktualisiert: {task.Title}");
+            BodyRightManager.Set(
+                $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
+                $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
+                $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{task.Title}' aktualisiert{Environment.NewLine}{Environment.NewLine}" +
+                $"Status: {task.Status}{Environment.NewLine}" +
+                $"Fällig: {task.DueDate:yyyy-MM-dd}"
+            );
+
+            UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
         }
     }
 }

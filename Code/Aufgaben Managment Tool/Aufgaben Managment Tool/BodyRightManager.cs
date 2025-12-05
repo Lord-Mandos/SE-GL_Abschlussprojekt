@@ -6,7 +6,16 @@ namespace Aufgaben_Managment_Tool
     internal static class BodyRightManager
     {
         private static string _content = string.Empty;
+        private static string _title = "Information";
         private static readonly object _lock = new object();
+
+        public static void SetTitle(string title)
+        {
+            lock (_lock)
+            {
+                _title = string.IsNullOrWhiteSpace(title) ? "Information" : title;
+            }
+        }
 
         public static void Set(string text)
         {
@@ -39,18 +48,20 @@ namespace Aufgaben_Managment_Tool
         public static Panel GetPanel()
         {
             string display;
+            string title;
             lock (_lock)
             {
                 display = string.IsNullOrWhiteSpace(_content)
                     ? "[grey]Keine Informationen verfügbar[/]"
                     : _content;
+                title = string.IsNullOrWhiteSpace(_title) ? "Information" : _title;
             }
 
             return new Panel(new Panel(new Markup(display))
             {
                 Border = BoxBorder.Rounded,
-                Header = new PanelHeader("[yellow]Information[/]")
-            });
+                Header = new PanelHeader($"[yellow]{title}[/]")
+            }).Expand();
         }
     }
 }

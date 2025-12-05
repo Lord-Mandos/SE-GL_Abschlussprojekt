@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using System;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -11,7 +12,6 @@ namespace Aufgaben_Managment_Tool
             new Layout("HeaderLeft").Update(
                 new Panel(Align.Left(headerLeftMarkup, VerticalAlignment.Middle)).Expand());
 
-
         private readonly static Markup headerRightMarkup =
             new Markup($"{DateOnly.FromDateTime(DateTime.Now)}");
 
@@ -21,13 +21,18 @@ namespace Aufgaben_Managment_Tool
 
         public static void UIMain(List<Markup> menuText, string menuTitle)
         {
+            Refresh(menuText, menuTitle);
+            MenuSystem.UserMenuChoice(menuText);
+        }
+
+        public static void Refresh(List<Markup> menuText, string menuTitle)
+        {
             AnsiConsole.Clear();
             int totalHeight = Console.WindowHeight;
 
             int headerHeight = (int)(totalHeight * 0.20);
             int bodyHeight = (int)(totalHeight * 0.60);
             int footerHeight = (int)(totalHeight * 0.15);
-
 
             var mainLayout = new Layout("Window")
                 .SplitRows(
@@ -46,15 +51,17 @@ namespace Aufgaben_Managment_Tool
             mainLayout["BodyRight"].Ratio = 2;
             mainLayout["HeaderRight"].Ratio = 2;
 
+            var headerLeft = new Panel(Align.Left(new Markup("Programm name"), VerticalAlignment.Middle)).Expand();
+            var headerRight = new Panel(Align.Right(new Markup($"{DateOnly.FromDateTime(DateTime.Now)}"), VerticalAlignment.Middle)).Expand();
 
-            mainLayout["HeaderLeft"].Update(HeaderLeft);
-            mainLayout["HeaderRight"].Update(HeaderRight);
+            mainLayout["HeaderLeft"].Update(headerLeft);
+            mainLayout["HeaderRight"].Update(headerRight);
+
             mainLayout["BodyLeft"].Update(MenuSystem.MenuPanel(menuText, menuTitle));
+
             mainLayout["BodyRight"].Update(BodyRightManager.GetPanel());
 
-
             AnsiConsole.Write(mainLayout);
-            MenuSystem.UserMenuChoice(menuText);
         }
     }
 }

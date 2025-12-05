@@ -41,8 +41,18 @@ namespace Aufgaben_Managment_Tool
             repository.SaveUsers(users);
 
             AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} mit Rolle {user.Role} wurde erstellt.[/]");
-        }
 
+            var total = users.Count;
+            var admins = users.Count(u => u.Role == UserRole.Admin);
+            BodyRightManager.SetTitle($"Benutzer erstellt: {user.Username}");
+            BodyRightManager.Set(
+                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
+                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' mit Rolle {user.Role} erstellt"
+            );
+
+            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+        }
         public static void CreateUser()
         {
             var repository = new UserRepository();
@@ -75,6 +85,17 @@ namespace Aufgaben_Managment_Tool
             repository.SaveUsers(users);
 
             AnsiConsole.MarkupLine($"[green]Registrierung erfolgreich. Benutzer {user.Username} wurde mit Rolle {user.Role} angelegt.[/]");
+
+            var total = users.Count;
+            var admins = users.Count(u => u.Role == UserRole.Admin);
+            BodyRightManager.SetTitle($"Registrierung: {user.Username}");
+            BodyRightManager.Set(
+                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
+                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' registriert"
+            );
+
+            UIRenderer.Refresh(MenuSystem.StartMenu, "Startmenü");
         }
 
         public static void GetUsers()
@@ -89,6 +110,17 @@ namespace Aufgaben_Managment_Tool
                 table.AddRow(user.Username, user.Role.ToString());
             }
             AnsiConsole.Write(table);
+
+            var total = users.Count;
+            var admins = users.Count(u => u.Role == UserRole.Admin);
+            BodyRightManager.SetTitle("Benutzerliste");
+            BodyRightManager.Set(
+                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
+                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion:{Environment.NewLine}- Benutzerliste angezeigt"
+            );
+
+            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
         }
         public static void UpdateUser()
         {
@@ -101,6 +133,9 @@ namespace Aufgaben_Managment_Tool
             if (user == null)
             {
                 AnsiConsole.MarkupLine("[red]Benutzer nicht gefunden.[/]");
+                BodyRightManager.SetTitle("Benutzer bearbeiten");
+                BodyRightManager.Set($"Letzte Aktion: Bearbeiten fehlgeschlagen für '{username}'");
+                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
                 return;
             }
             bool changeName = AnsiConsole.Confirm("Möchten Sie den Benutzernamen ändern?");
@@ -137,6 +172,17 @@ namespace Aufgaben_Managment_Tool
             repository.SaveUsers(users);
 
             AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} wurde aktualisiert.[/]");
+
+            var total = users.Count;
+            var admins = users.Count(u => u.Role == UserRole.Admin);
+            BodyRightManager.SetTitle($"Benutzer aktualisiert: {user.Username}");
+            BodyRightManager.Set(
+                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
+                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' aktualisiert"
+            );
+
+            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
         }
         public static void DeleteUser()
         {
@@ -149,12 +195,18 @@ namespace Aufgaben_Managment_Tool
             if (user == null)
             {
                 AnsiConsole.MarkupLine("[red]Benutzer nicht gefunden.[/]");
+                BodyRightManager.SetTitle("Benutzer löschen");
+                BodyRightManager.Set($"Letzte Aktion: Löschversuch fehlgeschlagen für '{username}'");
+                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
                 return;
             }
 
             if (user.Role == UserRole.Admin)
             {
                 AnsiConsole.MarkupLine("[red]Der Administrator kann nicht gelöscht werden![/]");
+                BodyRightManager.SetTitle("Benutzer löschen");
+                BodyRightManager.Add("Löschversuch eines Administrators abgebrochen.");
+                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
                 return;
             }
 
@@ -162,6 +214,17 @@ namespace Aufgaben_Managment_Tool
             repository.SaveUsers(users);
 
             AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} wurde gelöscht.[/]");
+
+            var total = users.Count;
+            var admins = users.Count(u => u.Role == UserRole.Admin);
+            BodyRightManager.SetTitle($"Benutzer gelöscht: {user.Username}");
+            BodyRightManager.Set(
+                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
+                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' gelöscht"
+            );
+
+            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
         }
     }
 }
