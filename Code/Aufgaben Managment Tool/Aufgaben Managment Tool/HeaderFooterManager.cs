@@ -8,11 +8,11 @@ namespace Aufgaben_Managment_Tool
     {
         public static Panel GetHeaderLeft()
         {
-            var markup = new Markup("[bold]Programmname[/]");
-            return new Panel(Align.Left(markup, VerticalAlignment.Middle))
+            var title = new Markup("[bold red]TaskHub[/]");
+            return new Panel(Align.Center(title, VerticalAlignment.Middle))
             {
                 Border = BoxBorder.Rounded,
-                Padding = new Padding(1, 1),
+                Padding = new Padding(1, 0),
                 Expand = true
             };
         }
@@ -24,13 +24,13 @@ namespace Aufgaben_Managment_Tool
             var todayCount = tasks.Count(t => t.DueDate.Date == DateTime.Now.Date);
             var openCount = tasks.Count(t => t.Status != TaskState.Done);
 
-            var p1 = new Panel(new Markup($"[green]Anzahl aufg. Heute[/]\n[bold]{todayCount}[/]"))
+            var p1 = new Panel(new Markup($"[yellow]Aufgaben Heute[/]\n[bold]{todayCount}[/]").Justify(Justify.Center))
             {
                 Border = BoxBorder.Rounded,
                 Padding = new Padding(1, 0),
                 Expand = false
             };
-            var p2 = new Panel(new Markup($"[green]Gesamt aufg. offen[/]\n[bold]{openCount}[/]"))
+            var p2 = new Panel(new Markup($"[yellow]Gesamt offen[/]\n[bold]{openCount}[/]").Justify(Justify.Center))
             {
                 Border = BoxBorder.Rounded,
                 Padding = new Padding(1, 0),
@@ -40,14 +40,11 @@ namespace Aufgaben_Managment_Tool
             var inner = new Layout("HeaderRightInner")
                 .SplitColumns(
                     new Layout("HR_Left"),
-                    new Layout("HR_Spacer"),
                     new Layout("HR_Right")
                 );
 
-            inner["HR_Spacer"].Ratio = 1;
 
-            inner["HR_Left"].Update(p1);
-            inner["HR_Spacer"].Update(new Markup("")); 
+            inner["HR_Left"].Update(Align.Left(p1, VerticalAlignment.Middle));
             inner["HR_Right"].Update(Align.Right(p2, VerticalAlignment.Middle));
 
             return new Panel(inner)

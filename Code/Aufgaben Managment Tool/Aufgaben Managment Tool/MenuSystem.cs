@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using System.Linq;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -64,12 +65,26 @@ namespace Aufgaben_Managment_Tool
             return panel;
         }
 
+        public static void UpdateMainOverview()
+        {
+            var taskRepo = new TaskRepository();
+            var tasks = taskRepo.LoadTasks();
+            var today = tasks.Count(t => t.DueDate.Date == DateTime.Now.Date);
+            var open = tasks.Count(t => t.Status != TaskState.Done);
+            var user = Session.CurrentUser?.Username ?? "Nicht angemeldet";
+
+            BodyRightManager.SetTitle("Übersicht");
+            BodyRightManager.Set(
+                $"Benutzer: {user}{Environment.NewLine}" +
+                $"Aufgaben heute: {today}{Environment.NewLine}" +
+                $"Offene Aufgaben: {open}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion: Menü geöffnet"
+            );
+        }
+
         public static void UserMenuChoice(List<Markup> menuText)
         {
-            int choice = AnsiConsole.Prompt(
-            new TextPrompt<int>("\"Bitte wählen Sie eine Option:\"")
-            .AddChoices(Enumerable.Range(1, menuText.Count)));
-
+            int choice = AnsiConsole.Prompt<int>(new TextPrompt<int>("Bitte wählen Sie eine Option:"));
             if (menuText == mainMenuText)
             {
                 switch (choice)
@@ -199,6 +214,7 @@ namespace Aufgaben_Managment_Tool
                         var auth = new AuthManager();
                         if (auth.Login())
                         {
+                            UpdateMainOverview();
                             UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         }
                         else
