@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using Spectre.Console.Rendering;
 using System;
 
 namespace Aufgaben_Managment_Tool
@@ -6,6 +7,7 @@ namespace Aufgaben_Managment_Tool
     internal static class BodyRightManager
     {
         private static string _content = string.Empty;
+        private static IRenderable? _renderable = null;
         private static string _title = "Information";
         private static readonly object _lock = new object();
 
@@ -22,6 +24,7 @@ namespace Aufgaben_Managment_Tool
             lock (_lock)
             {
                 _content = text ?? string.Empty;
+                _renderable = null;
             }
         }
 
@@ -34,6 +37,16 @@ namespace Aufgaben_Managment_Tool
                     _content = text;
                 else
                     _content += Environment.NewLine + text;
+                _renderable = null;
+            }
+        }
+
+        public static void SetRenderable(IRenderable renderable)
+        {
+            lock (_lock)
+            {
+                _renderable = renderable;
+                _content = string.Empty;
             }
         }
 
@@ -42,26 +55,38 @@ namespace Aufgaben_Managment_Tool
             lock (_lock)
             {
                 _content = string.Empty;
+                _renderable = null;
             }
         }
 
         public static Panel GetPanel()
         {
-            string display;
+            IRenderable content;
             string title;
             lock (_lock)
             {
-                display = string.IsNullOrWhiteSpace(_content)
-                    ? "[grey]Keine Informationen verfügbar[/]"
-                    : _content;
                 title = string.IsNullOrWhiteSpace(_title) ? "Information" : _title;
+
+                if (_renderable != null)
+                {
+                    content = _renderable;
+                }
+                else
+                {
+                    var display = string.IsNullOrWhiteSpace(_content)
+                        ? "[grey]Keine Informationen verfügbar[/]"
+                        : _content;
+                    content = new Markup(display);
+                }
             }
 
-            return new Panel(new Panel(new Markup(display))
+            return new Panel(content)
             {
                 Border = BoxBorder.Rounded,
-                Header = new PanelHeader($"[yellow]{title}[/]")
-            }).Expand();
+                Header = new PanelHeader($"[yellow]{title}[/]"),
+                Padding = new Padding(0, 0),
+                Expand = true
+            };
         }
     }
 }

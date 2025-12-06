@@ -1,6 +1,8 @@
 ﻿using Spectre.Console;
+using Spectre.Console.Rendering;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -53,6 +55,7 @@ namespace Aufgaben_Managment_Tool
 
             UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
         }
+
         public static void CreateUser()
         {
             var repository = new UserRepository();
@@ -98,30 +101,71 @@ namespace Aufgaben_Managment_Tool
             UIRenderer.Refresh(MenuSystem.StartMenu, "Startmenü");
         }
 
+        // Paginated user listing: max 12 pro Seite, Blättern oder zurück ins Menü
         public static void GetUsers()
         {
             var repository = new UserRepository();
-            var users = repository.LoadUsers();
-            var table = new Table();
-            table.AddColumn("Benutzername");
-            table.AddColumn("Rolle");
-            foreach (var user in users)
+            var users = repository.LoadUsers().OrderBy(u => u.Username).ToList();
+
+            if (users.Count == 0)
             {
-                table.AddRow(user.Username, user.Role.ToString());
+                BodyRightManager.SetTitle("Benutzerliste");
+                BodyRightManager.Set("[grey]Keine Benutzer vorhanden[/]");
+                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                return;
             }
-            AnsiConsole.Write(table);
 
-            var total = users.Count;
-            var admins = users.Count(u => u.Role == UserRole.Admin);
-            BodyRightManager.SetTitle("Benutzerliste");
-            BodyRightManager.Set(
-                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
-                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
-                $"Letzte Aktion:{Environment.NewLine}- Benutzerliste angezeigt"
-            );
+            const int pageSize = 12;
+            int page = 0;
+            int pages = (users.Count + pageSize - 1) / pageSize;
 
-            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+            while (true)
+            {
+                var table = new Table().Expand();
+                table.AddColumn(new TableColumn("[u]Benutzername[/]"));
+                table.AddColumn(new TableColumn("[u]Rolle[/]"));
+
+                var pageUsers = users.Skip(page * pageSize).Take(pageSize);
+                foreach (var u in pageUsers)
+                {
+                    table.AddRow(u.Username, u.Role.ToString());
+                }
+
+                BodyRightManager.SetTitle($"Benutzerliste — Seite {page + 1}/{pages}");
+                BodyRightManager.SetRenderable(table);
+                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+
+                // Aktionen zusammenstellen
+                var actions = new List<string>();
+                if (page > 0) actions.Add("← Zurück");
+                if (page < pages - 1) actions.Add("Weiter →");
+                actions.Add("Zurück zum Menü");
+
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Wähle Aktion:")
+                        .AddChoices(actions));
+
+                if (choice == "Weiter →")
+                {
+                    page++;
+                    continue;
+                }
+                else if (choice == "← Zurück")
+                {
+                    page--;
+                    continue;
+                }
+                else // Zurück zum Menü
+                {
+                    // beim Verlassen die BodyRight-Ansicht auf Übersicht setzen
+                    MenuSystem.UpdateMainOverview();
+                    UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                    break;
+                }
+            }
         }
+
         public static void UpdateUser()
         {
             var repository = new UserRepository();
