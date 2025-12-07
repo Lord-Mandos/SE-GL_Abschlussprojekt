@@ -131,7 +131,7 @@ namespace Aufgaben_Managment_Tool
                 BodyRightManager.SetRenderable(table);
                 UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
 
-                // Aktionen zusammenstellen
+
                 var actions = new List<string>();
                 if (page > 0) actions.Add("← Zurück");
                 if (page < pages - 1) actions.Add("Weiter →");
@@ -152,9 +152,9 @@ namespace Aufgaben_Managment_Tool
                     page--;
                     continue;
                 }
-                else // Zurück zum Menü
+                else 
                 {
-                    // beim Verlassen die BodyRight-Ansicht auf Übersicht setzen
+
                     MenuSystem.UpdateMainOverview();
                     UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
                     break;
@@ -198,7 +198,6 @@ namespace Aufgaben_Managment_Tool
                     }));
             }
 
-            // Rolle nur ändern, wenn es nicht das eigene Admin-Konto ist
             var currentSessionUser = Session.CurrentUser;
             bool editingSelf = currentSessionUser != null && currentSessionUser.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase);
 
@@ -213,7 +212,7 @@ namespace Aufgaben_Managment_Tool
                     .Title("Bitte wählen Sie die neue Rolle:")
                     .AddChoices(UserRole.Admin, UserRole.User));
 
-                // Wenn die Auswahl eine Demotion eines Admins ist, prüfen ob mindestens ein weiterer Admin übrig bleibt
+                
                 if (user.Role == UserRole.Admin && newRole == UserRole.User)
                 {
                     var adminCount = users.Count(u => u.Role == UserRole.Admin);

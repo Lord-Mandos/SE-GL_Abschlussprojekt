@@ -131,7 +131,7 @@ namespace Aufgaben_Managment_Tool
                         TaskService.createTask();
                         break;
                     case 2:
-                        // Aufgabe anzeigen logic here
+                        TaskService.ShowTasks();
                         break;
                     case 3:
                         TaskService.updateTask();

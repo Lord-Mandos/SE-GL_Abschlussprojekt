@@ -1,6 +1,5 @@
 ﻿using Spectre.Console;
-using System;
-using System.Linq;
+using Spectre.Console.Rendering;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -56,6 +55,7 @@ namespace Aufgaben_Managment_Tool
 
             UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
         }
+
         public static void deleteTask()
         {
             var _taskRepository = new TaskRepository();
@@ -95,7 +95,6 @@ namespace Aufgaben_Managment_Tool
 
         public static void updateTask()
         {
-
             var _taskRepository = new TaskRepository();
             var tasks = _taskRepository.LoadTasks();
 
@@ -156,6 +155,183 @@ namespace Aufgaben_Managment_Tool
             );
 
             UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+        }
+
+        public static void ShowTasks()
+        {
+            var repo = new TaskRepository();
+            var tasks = repo.LoadTasks().OrderBy(t => t.DueDate).ToList();
+
+            if (tasks.Count == 0)
+            {
+                BodyRightManager.SetTitle("Aufgaben");
+                BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
+            }
+
+            const int pageSize = 6;
+            int page = 0;
+            int pages = (tasks.Count + pageSize - 1) / pageSize;
+
+            while (true)
+            {
+                var pageTasks = tasks.Skip(page * pageSize).Take(pageSize).ToList();
+
+                var grid = new Grid().AddColumn().AddColumn().AddColumn();
+                grid.Centered();
+
+                int totalHeight = Console.WindowHeight;
+                int bodyHeight = (int)(totalHeight * 0.60);
+                int cellHeight = (int)(bodyHeight * 0.45);
+
+                int panelTextWidth = (int)(Math.Max(0, ((Console.WindowWidth * 0.6) / 3) - 4));
+                int maxTextLines = cellHeight - 5;
+
+                string WrapAndTruncateText(string text, int maxCharsPerLine, int maxLines)
+                {
+                    if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+                    var words = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    var lines = new List<string>();
+                    var current = "";
+
+                    void PushCurrent()
+                    {
+                        if (!string.IsNullOrEmpty(current))
+                        {
+                            lines.Add(current);
+                            current = "";
+                        }
+                    }
+
+                    foreach (var w in words)
+                    {
+                        if (w.Length > maxCharsPerLine)
+                        {
+                            PushCurrent();
+                            if (lines.Count == maxLines) break;
+
+                            for (int i = 0; i < w.Length; i += maxCharsPerLine)
+                            {
+                                if (lines.Count == maxLines) break;
+                                var len = Math.Min(maxCharsPerLine, w.Length - i);
+                                var part = w.Substring(i, len);
+                                lines.Add(part);
+                            }
+
+                            if (lines.Count == maxLines) break;
+                        }
+                        else
+                        {
+                            if (current.Length == 0)
+                            {
+                                current = w;
+                            }
+                            else if (current.Length + 1 + w.Length <= maxCharsPerLine)
+                            {
+                                current += " " + w;
+                            }
+                            else
+                            {
+                                lines.Add(current);
+                                current = w;
+                                if (lines.Count == maxLines) break;
+                            }
+                        }
+
+                        if (lines.Count == maxLines) break;
+                    }
+
+                    if (lines.Count < maxLines)
+                    {
+                        PushCurrent();
+                    }
+
+                    if (lines.Count > maxLines)
+                    {
+                        lines = lines.Take(maxLines).ToList();
+                    }
+
+                    var usedWordsCount = lines.SelectMany(l => l.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count();
+                    if (usedWordsCount < words.Length)
+                    {
+                        var last = lines.Last();
+                        if (last.Length > 3)
+                            last = last.Substring(0, Math.Max(0, last.Length - 3)) + "...";
+                        lines[lines.Count - 1] = last;
+                    }
+
+                    return string.Join(Environment.NewLine, lines.Take(maxLines));
+                }
+
+                Panel CreateTaskPanel(TaskItem t)
+                {
+                    var truncatedDesc = WrapAndTruncateText(t.Description ?? string.Empty, panelTextWidth, maxTextLines);
+                    var contentText = $"[bold yellow]{t.Title}[/]{Environment.NewLine}" +
+                                      $"{truncatedDesc}{Environment.NewLine}{Environment.NewLine}" +
+                                      $"[grey]Fällig: {t.DueDate:yyyy-MM-dd}[/]";
+                    var raw = new Markup(contentText);
+                    var centered = Align.Center(raw, VerticalAlignment.Top);
+                    return new Panel(centered)
+                    {
+                        Height = cellHeight,
+                        Border = BoxBorder.Rounded,
+                        Padding = new Padding(0, 0),
+                        Expand = false
+                    };
+                }
+
+                var cellsRow1 = new List<IRenderable>();
+                for (int i = 0; i < 3; i++)
+                {
+                    if (i < pageTasks.Count)
+                        cellsRow1.Add(CreateTaskPanel(pageTasks[i]));
+                    else
+                        cellsRow1.Add(new Panel(Align.Center(new Markup("[grey]Keine weitere Aufgabe![/]"), VerticalAlignment.Middle)) { Height = cellHeight, Padding = new Padding(1, 0), Border = BoxBorder.Rounded, Expand = false });
+                }
+                grid.AddRow(cellsRow1[0], cellsRow1[1], cellsRow1[2]);
+
+                var cellsRow2 = new List<IRenderable>();
+                for (int i = 3; i < 6; i++)
+                {
+                    int idx = i;
+                    if (idx < pageTasks.Count)
+                        cellsRow2.Add(CreateTaskPanel(pageTasks[idx]));
+                    else
+                        cellsRow2.Add(new Panel(Align.Center(new Markup("[grey]Keine weitere Aufgabe![/]"), VerticalAlignment.Middle)) { Height = cellHeight, Padding = new Padding(1, 0), Border = BoxBorder.Rounded, Expand = false });
+                }
+                grid.AddRow(cellsRow2[0], cellsRow2[1], cellsRow2[2]);
+
+                BodyRightManager.SetTitle($"Aufgaben — Seite {page + 1}/{pages}");
+                BodyRightManager.SetRenderable(grid);
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+
+                var actions = new List<string>();
+                if (page > 0) actions.Add("← Zurück");
+                if (page < pages - 1) actions.Add("Weiter →");
+                actions.Add("Zurück zum Menü");
+
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Wähle Aktion:")
+                        .AddChoices(actions));
+
+                if (choice == "Weiter →")
+                {
+                    page++;
+                    continue;
+                }
+                if (choice == "← Zurück")
+                {
+                    page--;
+                    continue;
+                }
+
+                MenuSystem.UpdateMainOverview();
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                break;
+            }
         }
     }
 }
