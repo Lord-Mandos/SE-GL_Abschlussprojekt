@@ -84,7 +84,7 @@ namespace Aufgaben_Managment_Tool
 
         public static void UserMenuChoice(List<Markup> menuText)
         {
-            int choice = AnsiConsole.Prompt<int>(new TextPrompt<int>("Bitte wählen Sie eine Option:"));
+            int choice = AnsiConsole.Prompt<int>(( new TextPrompt<int>("Bitte wählen Sie eine Option:").AddChoices<int>(Enumerable.Range(1,menuText.Count))));
             if (menuText == mainMenuText)
             {
                 switch (choice)
