@@ -1,8 +1,6 @@
 ﻿using Spectre.Console;
-using Spectre.Console.Rendering;
 using System;
 using System.Linq;
-using System.Collections.Generic;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -55,7 +53,6 @@ namespace Aufgaben_Managment_Tool
 
             UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
         }
-
         public static void CreateUser()
         {
             var repository = new UserRepository();
@@ -101,7 +98,6 @@ namespace Aufgaben_Managment_Tool
             UIRenderer.Refresh(MenuSystem.StartMenu, "Startmenü");
         }
 
-        // Paginated user listing: max 12 pro Seite, Blättern oder zurück ins Menü
         public static void GetUsers()
         {
             var repository = new UserRepository();
@@ -165,7 +161,6 @@ namespace Aufgaben_Managment_Tool
                 }
             }
         }
-
         public static void UpdateUser()
         {
             var repository = new UserRepository();
@@ -182,32 +177,63 @@ namespace Aufgaben_Managment_Tool
                 UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
                 return;
             }
-            bool changeName = AnsiConsole.Confirm("Möchten Sie den Benutzernamen ändern?");
 
+            bool changeName = AnsiConsole.Confirm("Möchten Sie den Benutzernamen ändern?");
 
             if (changeName)
             {
                 user.Username = AnsiConsole.Prompt<string>(
-                    new TextPrompt<string>("Bitte geben Sie den neuen Benutzernamen ein:").PromptStyle("green").Validate(username =>
+                    new TextPrompt<string>("Bitte geben Sie den neuen Benutzernamen ein:").PromptStyle("green").Validate(newName =>
                     {
-                        if (username.Length < 3)
+                        if (newName.Length < 3)
                         {
-                            return ValidationResult.Error("[red]Der Benutzername muss mindestens 3 Zeichen lang sein.[/]");
+                            return ValidationResult.Error("[red]Der Benutzername muss mindestens 3 Zeichen lang sein.[/>");
                         }
 
-
-                        if (users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
+                        if (users.Any(u => u.Username.Equals(newName, StringComparison.OrdinalIgnoreCase) && !u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase)))
                         {
-                            return ValidationResult.Error("[red]Dieser Benutzername ist bereits vergeben.[/]");
+                            return ValidationResult.Error("[red]Dieser Benutzername ist bereits vergeben.[/>");
                         }
                         return ValidationResult.Success();
                     }));
             }
 
-            user.Role = AnsiConsole.Prompt<UserRole>(
-                new SelectionPrompt<UserRole>()
-                .Title("Bitte wählen Sie die neue Rolle:")
-                .AddChoices(UserRole.Admin, UserRole.User));
+            // Rolle nur ändern, wenn es nicht das eigene Admin-Konto ist
+            var currentSessionUser = Session.CurrentUser;
+            bool editingSelf = currentSessionUser != null && currentSessionUser.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase);
+
+            if (editingSelf)
+            {
+                AnsiConsole.MarkupLine("[yellow]Hinweis: Sie können Ihre eigene Administratorrolle nicht entfernen.[/]");
+            }
+            else
+            {
+                var newRole = AnsiConsole.Prompt<UserRole>(
+                    new SelectionPrompt<UserRole>()
+                    .Title("Bitte wählen Sie die neue Rolle:")
+                    .AddChoices(UserRole.Admin, UserRole.User));
+
+                // Wenn die Auswahl eine Demotion eines Admins ist, prüfen ob mindestens ein weiterer Admin übrig bleibt
+                if (user.Role == UserRole.Admin && newRole == UserRole.User)
+                {
+                    var adminCount = users.Count(u => u.Role == UserRole.Admin);
+                    if (adminCount <= 1)
+                    {
+                        AnsiConsole.MarkupLine("[red]Aktion abgebrochen: Es muss mindestens ein Administrator vorhanden sein.[/]");
+                        BodyRightManager.SetTitle("Rollenänderung abgebrochen");
+                        BodyRightManager.Set("Es ist nicht erlaubt, den letzten Administrator zu entziehen.");
+                        UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                    }
+                    else
+                    {
+                        user.Role = newRole;
+                    }
+                }
+                else
+                {
+                    user.Role = newRole;
+                }
+            }
 
             bool changePassword = AnsiConsole.Confirm("Möchten Sie das Passwort ändern?");
             if (changePassword)
