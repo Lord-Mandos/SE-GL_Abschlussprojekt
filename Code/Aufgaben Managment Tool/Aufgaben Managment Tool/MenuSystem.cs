@@ -1,5 +1,4 @@
 ﻿using Spectre.Console;
-using System.Linq;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -9,31 +8,27 @@ namespace Aufgaben_Managment_Tool
         {
             new Markup("[green]>[/] [grey100]1. Aufgabenverwaltung[/]"),
             new Markup("[green]>[/] [grey100]2. Kanban-Board[/]"),
-            new Markup("[green]>[/] [grey100]3. Suchen[/]"),
-            new Markup("[green]>[/] [grey100]4. Abmelden[/]"),
-            new Markup("[green]>[/] [grey100]5. Benutzerverwaltung[/]"),
-            new Markup("[green]>[/] [grey100]6. Beenden[/]")
+            new Markup("[green]>[/] [grey100]3. Abmelden[/]"),
+            new Markup("[green]>[/] [grey100]4. Benutzerverwaltung[/]"),
+            new Markup("[green]>[/] [grey100]5. Beenden[/]")
         };
         public static List<Markup> taskMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Aufgabe erstellen[/]"),
-            new Markup("[green]>[/] [grey100]2. Aufgabe anzeigen[/]"),
-            new Markup("[green]>[/] [grey100]3. Aufgabe bearbeiten[/]"),
-            new Markup("[green]>[/] [grey100]4. Aufgabe löschen[/]"),
-            new Markup("[green]>[/] [grey100]5. Zurück[/]")
+            new Markup("[green]>[/] [grey100]2. Aufgaben anzeigen[/]"),
+            new Markup("[green]>[/] [grey100]3. Aufgabe anzeigen[/]"),
+            new Markup("[green]>[/] [grey100]4. Aufgabe bearbeiten[/]"),
+            new Markup("[green]>[/] [grey100]5. Aufgabe löschen[/]"),
+            new Markup("[green]>[/] [grey100]6. Zurück[/]")
         };
         public static List<Markup> kanbanBoardMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Board anzeigen[/]"),
             new Markup("[green]>[/] [grey100]2. Aufgabe verschieben[/]"),
-            new Markup("[green]>[/] [grey100]3. Zurück[/]")
+            new Markup("[green]>[/] [grey100]3. Aufgabe anzeigen[/]"),
+            new Markup("[green]>[/] [grey100]4. Zurück[/]")
         };
-        public static List<Markup> searchMenuText = new List<Markup>
-        {
-            new Markup("[green]>[/] [grey100]1. Nach ID suchen[/]"),
-            new Markup("[green]>[/] [grey100]2. Nach Titel suchen[/]"),
-            new Markup("[green]>[/] [grey100]3. Zurück[/]")
-        };
+
         public static List<Markup> userMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Benutzer erstellen[/]"),
@@ -78,14 +73,14 @@ namespace Aufgaben_Managment_Tool
                 $"\nBenutzer:        {user}{Environment.NewLine}" +
                 $"[grey100]Aufgaben heute:  {today}{Environment.NewLine}[/]" +
                 $"Offene Aufgaben: {open}{Environment.NewLine}{Environment.NewLine}" +
-                $"[grey100]Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}[/]"+
+                $"[grey100]Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}[/]" +
                 $"Letzte Aktion:   {action}"
             );
         }
 
         public static void UserMenuChoice(List<Markup> menuText)
         {
-            int choice = AnsiConsole.Prompt<int>(( new TextPrompt<int>("Bitte wählen Sie eine Option:").AddChoices<int>(Enumerable.Range(1,menuText.Count))));
+            int choice = AnsiConsole.Prompt<int>((new TextPrompt<int>("Bitte wählen Sie eine Option:").AddChoices<int>(Enumerable.Range(1, menuText.Count))));
             if (menuText == mainMenuText)
             {
                 switch (choice)
@@ -99,13 +94,9 @@ namespace Aufgaben_Managment_Tool
                         UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 3:
-                        UpdateMainOverview("Suchmenü geöffnet");
-                        UIRenderer.UIMain(searchMenuText, "Suchen");
-                        break;
-                    case 4:
                         AuthManager.Logout();
                         break;
-                    case 5:
+                    case 4:
                         if (Session.CurrentUser != null && Session.CurrentUser.Role == UserRole.Admin)
                         {
                             UpdateMainOverview("Benutzerverwaltung geöffnet");
@@ -117,7 +108,7 @@ namespace Aufgaben_Managment_Tool
                             UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         }
                         break;
-                    case 6:
+                    case 5:
                         AnsiConsole.MarkupLine("[red]Programm wird beendet...[/]");
                         Environment.Exit(0);
                         break;
@@ -140,14 +131,18 @@ namespace Aufgaben_Managment_Tool
                         UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 3:
-                        TaskService.updateTask();
+                        TaskService.ShowTaskDetails();
                         UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 4:
-                        TaskService.deleteTask();
+                        TaskService.updateTask();
                         UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 5:
+                        TaskService.deleteTask();
+                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        break;
+                    case 6:
                         UpdateMainOverview("Zurück zum Hauptmenü");
                         UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         break;
@@ -170,21 +165,11 @@ namespace Aufgaben_Managment_Tool
                         UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 3:
-                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        TaskService.ShowTaskDetails();
+                        UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
                         break;
-                }
-            }
-            else if (menuText == searchMenuText)
-            {
-                switch (choice)
-                {
-                    case 1:
-                        // Nach ID suchen logic here
-                        break;
-                    case 2:
-                        // Nach Titel suchen logic here
-                        break;
-                    case 3:
+                    case 4:
+                        UpdateMainOverview("Zurück zum Hauptmenü");
                         UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         break;
                 }

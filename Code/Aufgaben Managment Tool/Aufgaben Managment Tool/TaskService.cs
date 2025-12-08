@@ -158,7 +158,6 @@ namespace Aufgaben_Managment_Tool
         public static void ShowTasks()
         {
             var tasks = TaskRepository.LoadTasks().OrderBy(t => t.DueDate).ToList();
-            tasks.Reverse();
 
             if (tasks.Count == 0)
             {
@@ -327,7 +326,7 @@ namespace Aufgaben_Managment_Tool
                 }
 
                 MenuSystem.UpdateMainOverview("Aufgaben angezeigt");
-                //UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+
                 break;
             }
         }
@@ -340,11 +339,10 @@ namespace Aufgaben_Managment_Tool
             var inProgress = tasks.Where(t => t.Status == TaskState.InProgress).ToList();
             var done = tasks.Where(t => t.Status == TaskState.Done).ToList();
 
-            // Berechne, wie viele Einträge pro Spalte in den sichtbaren Body passen
+
             int totalHeight = Console.WindowHeight;
             int bodyHeight = (int)(totalHeight * 0.60);
-            // jede Aufgabe benötigt ungefähr 2 Zeilen (Titel + Fälligkeitsdatum)
-            // Rand/Überschrift/Borders abziehen -> -4
+
             int rowsPerColumn = Math.Max(1, (bodyHeight - 5) / 2);
 
             int maxColumnItems = Math.Max(todo.Count, Math.Max(inProgress.Count, done.Count));
@@ -451,5 +449,55 @@ namespace Aufgaben_Managment_Tool
             AnsiConsole.MarkupLine("[green]Status erfolgreich geändert.[/]");
             UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
         }
+
+        public static void ShowTaskDetails()
+        {
+            var tasks = TaskRepository.LoadTasks().OrderBy(t => t.DueDate).ToList();
+
+            if (tasks.Count == 0)
+            {
+                BodyRightManager.SetTitle("Aufgabe anzeigen");
+                BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
+            }
+
+            var choices = tasks
+                .Select(t => $"{(t.Title)}  (Fällig: {t.DueDate:yyyy-MM-dd})")
+                .ToList();
+
+            var selected = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Wähle eine Aufgabe zum Anzeigen:")
+                    .PageSize(Math.Min(14, choices.Count))
+                    .AddChoices(choices));
+
+            var index = choices.IndexOf(selected);
+            if (index < 0 || index >= tasks.Count)
+            {
+                AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
+            }
+
+            var task = tasks[index];
+
+            var table = new Table().Expand().Border(TableBorder.None);
+            table.AddColumn(new TableColumn("").LeftAligned().Width(18));
+            table.AddColumn(new TableColumn("").LeftAligned());
+
+            table.AddRow("[grey]Titel[/]", $"[bold yellow]{(task.Title)}[/]");
+            table.AddRow("[grey]Beschreibung[/]", string.IsNullOrWhiteSpace(task.Description) ? "[grey]—[/]" : (task.Description));
+            table.AddRow("[grey]Erstellt[/]", task.CreateAt.ToString("yyyy-MM-dd HH:mm"));
+            table.AddRow("[grey]Fälligkeitsdatum[/]", task.DueDate.ToString("yyyy-MM-dd"));
+            table.AddRow("[grey]Status[/]", task.Status.ToString());
+            table.AddRow("[grey]Zugewiesen an[/]", string.IsNullOrWhiteSpace(task.AssignedUser) ? "[grey]—[/]" : (task.AssignedUser));
+            table.AddRow("[grey]ID[/]", task.Id.ToString());
+
+            BodyRightManager.SetTitle($"Aufgabe: {task.Title}");
+            BodyRightManager.SetRenderable(table);
+            UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+        }
+
     }
 }
