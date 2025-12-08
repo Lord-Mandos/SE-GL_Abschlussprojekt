@@ -18,9 +18,12 @@
                 .PromptStyle("green")
                 .Validate(title =>
                 {
-                    return title.Length < 3
-                        ? ValidationResult.Error("[red]Der Titel muss mindestens 3 Zeichen lang sein.[/]")
-                        : ValidationResult.Success();
+                    var t = (title ?? string.Empty).Trim();
+                    if (t.Length < 3)
+                        return ValidationResult.Error("[red]Der Titel muss mindestens 3 Zeichen lang sein.[/]");
+                    if (tasks.Any(x => x.Title.Equals(t, StringComparison.OrdinalIgnoreCase)))
+                        return ValidationResult.Error("[red]Ein Task mit diesem Titel existiert bereits. Bitte wählen Sie einen eindeutigen Titel.[/]");
+                    return ValidationResult.Success();
                 }));
 
             newTask.Description = AnsiConsole.Prompt<string>(
@@ -193,9 +196,12 @@
                 .DefaultValue(taskToEdit.Title)
                 .Validate(title =>
                 {
-                    return title.Length < 3
-                        ? ValidationResult.Error("[red]Der Titel muss mindestens 3 Zeichen lang sein.[/]")
-                        : ValidationResult.Success();
+                    var t = (title ?? string.Empty).Trim();
+                    if (t.Length < 3)
+                        return ValidationResult.Error("[red]Der Titel muss mindestens 3 Zeichen lang sein.[/]");
+                    if (tasks.Any(x => x.Id != taskToEdit.Id && x.Title.Equals(t, StringComparison.OrdinalIgnoreCase)))
+                        return ValidationResult.Error("[red]Ein anderer Task mit diesem Titel existiert bereits. Bitte wählen Sie einen eindeutigen Titel.[/]");
+                    return ValidationResult.Success();
                 }));
 
             taskToEdit.Description = AnsiConsole.Prompt<string>(
