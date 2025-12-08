@@ -1,10 +1,4 @@
-﻿using Spectre.Console;
-using Spectre.Console.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Aufgaben_Managment_Tool
+﻿namespace Aufgaben_Managment_Tool
 {
     internal class TaskService
     {
@@ -450,7 +444,7 @@ namespace Aufgaben_Managment_Tool
                     string cellTodo = r < todoPage.Count ? $"[bold yellow]{todoPage[r].Title}[/]\n[grey]Fällig: {todoPage[r].DueDate:yyyy-MM-dd}[/]" : "";
                     string cellInProg = r < inProgPage.Count ? $"[bold yellow]{inProgPage[r].Title}[/]\n[grey]Fällig: {inProgPage[r].DueDate:yyyy-MM-dd}[/]" : "";
                     string cellDone = r < donePage.Count ? $"[bold yellow]{donePage[r].Title}[/]\n[grey]Fällig: {donePage[r].DueDate:yyyy-MM-dd}[/]" : "";
-                
+
                     table.AddRow(cellTodo, cellInProg, cellDone);
                 }
 

@@ -1,7 +1,4 @@
-﻿using Spectre.Console;
-using System;
-
-namespace Aufgaben_Managment_Tool
+﻿namespace Aufgaben_Managment_Tool
 {
     internal class UIRenderer
     {

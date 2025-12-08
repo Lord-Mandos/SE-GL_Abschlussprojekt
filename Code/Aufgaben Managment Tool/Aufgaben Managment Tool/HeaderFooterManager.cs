@@ -1,6 +1,3 @@
-using Spectre.Console;
-
-
 namespace Aufgaben_Managment_Tool
 {
     internal static class HeaderFooterManager

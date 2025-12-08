@@ -1,10 +1,4 @@
-﻿using Spectre.Console;
-using System;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-
-namespace Aufgaben_Managment_Tool
+﻿namespace Aufgaben_Managment_Tool
 {
     internal static class AuthManager
     {

@@ -1,8 +1,4 @@
-﻿using Spectre.Console;
-using Spectre.Console.Rendering;
-using System;
-
-namespace Aufgaben_Managment_Tool
+﻿namespace Aufgaben_Managment_Tool
 {
     internal static class BodyRightManager
     {

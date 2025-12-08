@@ -1,9 +1,4 @@
-﻿using Spectre.Console;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
-namespace Aufgaben_Managment_Tool
+﻿namespace Aufgaben_Managment_Tool
 {
     internal class UserService
     {

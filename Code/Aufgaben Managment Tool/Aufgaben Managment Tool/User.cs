@@ -1,7 +1,4 @@
-﻿using Spectre.Console;
-using System.Text.Json.Serialization;
-
-namespace Aufgaben_Managment_Tool
+﻿namespace Aufgaben_Managment_Tool
 {
     internal class User
     {

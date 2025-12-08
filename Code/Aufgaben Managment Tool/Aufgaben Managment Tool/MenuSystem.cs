@@ -1,8 +1,4 @@
-﻿using Spectre.Console;
-using System.Linq;
-using System.Collections.Generic;
-
-namespace Aufgaben_Managment_Tool
+﻿namespace Aufgaben_Managment_Tool
 {
     internal class MenuSystem
     {
@@ -86,7 +82,7 @@ namespace Aufgaben_Managment_Tool
 
         public static void UserMenuChoice(IReadOnlyList<Markup> menuText)
         {
-            int choice = AnsiConsole.Prompt<int>(( new TextPrompt<int>("Bitte wählen Sie eine Option:").AddChoices<int>(Enumerable.Range(1,menuText.Count))));
+            int choice = AnsiConsole.Prompt<int>((new TextPrompt<int>("Bitte wählen Sie eine Option:").AddChoices<int>(Enumerable.Range(1, menuText.Count))));
             if (menuText == MainMenuText)
             {
                 switch (choice)

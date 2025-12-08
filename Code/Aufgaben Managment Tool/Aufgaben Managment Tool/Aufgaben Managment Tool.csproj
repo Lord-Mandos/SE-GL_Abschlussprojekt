@@ -12,4 +12,13 @@
     <PackageReference Include="Spectre.Console" Version="0.54.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Spectre.Console" />
+    <Using Include="Spectre.Console.Rendering" />
+    <Using Include="System.Net" />
+    <Using Include="System.Text" />
+    <Using Include="System.Text.Json" />
+    <Using Include="System.Text.Json.Serialization" />
+  </ItemGroup>
+
 </Project>

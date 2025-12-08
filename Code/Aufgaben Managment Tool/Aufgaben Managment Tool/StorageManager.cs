@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace Aufgaben_Managment_Tool
+﻿namespace Aufgaben_Managment_Tool
 {
     internal class StorageManager<T>
     {
