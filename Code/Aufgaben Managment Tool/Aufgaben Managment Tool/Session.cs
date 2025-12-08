@@ -25,7 +25,7 @@ namespace Aufgaben_Managment_Tool
                 else
                 {
                     MenuSystem.UpdateMainOverview();
-                    UIRenderer.UIMain(MenuSystem.mainMenuText, "Hauptmenü");
+                    UIRenderer.UIMain(MenuSystem.MainMenuText, "Hauptmenü");
                 }
             }
         }

@@ -5,13 +5,13 @@ namespace Aufgaben_Managment_Tool
 {
     internal class UIRenderer
     {
-        public static void UIMain(List<Markup> menuText, string menuTitle)
+        public static void UIMain(IReadOnlyList<Markup> menuText, string menuTitle)
         {
             Refresh(menuText, menuTitle);
             MenuSystem.UserMenuChoice(menuText);
         }
 
-        public static void Refresh(List<Markup> menuText, string menuTitle)
+        public static void Refresh(IReadOnlyList<Markup> menuText, string menuTitle)
         {
             AnsiConsole.Clear();
             int totalHeight = Console.WindowHeight;

@@ -1,18 +1,21 @@
 ﻿using Spectre.Console;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Aufgaben_Managment_Tool
 {
     internal class MenuSystem
     {
-        public static List<Markup> MainMenuText = new List<Markup>
+        public static readonly IReadOnlyList<Markup> MainMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Aufgabenverwaltung[/]"),
             new Markup("[green]>[/] [grey100]2. Kanban-Board[/]"),
             new Markup("[green]>[/] [grey100]3. Abmelden[/]"),
             new Markup("[green]>[/] [grey100]4. Benutzerverwaltung[/]"),
             new Markup("[green]>[/] [grey100]5. Beenden[/]")
-        };
-        public static List<Markup> TaskMenuText = new List<Markup>
+        }.AsReadOnly();
+
+        public static readonly IReadOnlyList<Markup> TaskMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Aufgabe erstellen[/]"),
             new Markup("[green]>[/] [grey100]2. Aufgaben anzeigen[/]"),
@@ -20,30 +23,33 @@ namespace Aufgaben_Managment_Tool
             new Markup("[green]>[/] [grey100]4. Aufgabe bearbeiten[/]"),
             new Markup("[green]>[/] [grey100]5. Aufgabe löschen[/]"),
             new Markup("[green]>[/] [grey100]6. Zurück[/]")
-        };
-        public static List<Markup> KanbanBoardMenuText = new List<Markup>
+        }.AsReadOnly();
+
+        public static readonly IReadOnlyList<Markup> KanbanBoardMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Board anzeigen[/]"),
             new Markup("[green]>[/] [grey100]2. Aufgabe verschieben[/]"),
             new Markup("[green]>[/] [grey100]3. Aufgabe anzeigen[/]"),
             new Markup("[green]>[/] [grey100]4. Zurück[/]")
-        };
+        }.AsReadOnly();
 
-        public static List<Markup> UserMenuText = new List<Markup>
+        public static readonly IReadOnlyList<Markup> UserMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Benutzer erstellen[/]"),
             new Markup("[green]>[/] [grey100]2. Benutzer anzeigen[/]"),
             new Markup("[green]>[/] [grey100]3. Benutzer bearbeiten[/]"),
             new Markup("[green]>[/] [grey100]4. Benutzer löschen[/]"),
             new Markup("[green]>[/] [grey100]5. Zurück[/]")
-        };
-        public static List<Markup> StartMenu = new List<Markup>
+        }.AsReadOnly();
+
+        public static readonly IReadOnlyList<Markup> StartMenu = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Login[/]"),
             new Markup("[green]>[/] [grey100]2. Registrierung[/]"),
             new Markup("[green]>[/] [grey100]3. Beenden[/]")
-        };
-        public static Panel MenuPanel(List<Markup> menuText, string menuTitle)
+        }.AsReadOnly();
+
+        public static Panel MenuPanel(IReadOnlyList<Markup> menuText, string menuTitle)
         {
             var panel = new Panel(new Panel(Align.Left
                 (new Rows(menuText), VerticalAlignment.Middle))
@@ -78,7 +84,7 @@ namespace Aufgaben_Managment_Tool
             );
         }
 
-        public static void UserMenuChoice(List<Markup> menuText)
+        public static void UserMenuChoice(IReadOnlyList<Markup> menuText)
         {
             int choice = AnsiConsole.Prompt<int>(( new TextPrompt<int>("Bitte wählen Sie eine Option:").AddChoices<int>(Enumerable.Range(1,menuText.Count))));
             if (menuText == MainMenuText)
