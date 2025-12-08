@@ -1,6 +1,7 @@
 ﻿using Spectre.Console;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -52,6 +53,44 @@ namespace Aufgaben_Managment_Tool
 
             UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
         }
+
+
+        public static void EnsureInitialAdmin()
+        {
+            var users = UserRepository.LoadUsers();
+            if (users == null || users.Count == 0)
+            {
+
+                BodyRightManager.SetTitle("Initiale Einrichtung");
+                BodyRightManager.Set("Kein Benutzer gefunden. Bitte initialen Administrator anlegen.");
+                UIRenderer.Refresh(MenuSystem.StartMenu, "Startmenü");
+
+                var admin = new User();
+
+                admin.Username = AnsiConsole.Prompt<string>(
+                    new TextPrompt<string>("[bold yellow]Initialer Administrator - Benutzername wählen:[/]")
+                        .PromptStyle("green")
+                        .Validate(name =>
+                        {
+                            return string.IsNullOrWhiteSpace(name) || name.Length < 3
+                                ? ValidationResult.Error("[red]Der Benutzername muss mindestens 3 Zeichen lang sein.[/]")
+                                : ValidationResult.Success();
+                        }));
+
+                admin.Role = UserRole.Admin;
+
+                admin.SetPassword();
+
+                users = new List<User> { admin };
+                UserRepository.SaveUsers(users);
+
+                TaskRepository.SaveTasks(new List<TaskItem>());
+
+                BodyRightManager.SetTitle("Initialisierung abgeschlossen");
+                BodyRightManager.Set($"Administrator '{admin.Username}' erstellt.");
+            }
+        }
+
         public static void CreateUser()
         {
             var users = UserRepository.LoadUsers();
