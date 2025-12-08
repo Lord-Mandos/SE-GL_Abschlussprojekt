@@ -51,7 +51,7 @@ namespace Aufgaben_Managment_Tool
                 $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' mit Rolle {user.Role} erstellt"
             );
 
-            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+            UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
         }
 
 
@@ -143,7 +143,7 @@ namespace Aufgaben_Managment_Tool
             {
                 BodyRightManager.SetTitle("Benutzerliste");
                 BodyRightManager.Set("[grey]Keine Benutzer vorhanden[/]");
-                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
             }
 
@@ -166,7 +166,7 @@ namespace Aufgaben_Managment_Tool
 
                 BodyRightManager.SetTitle($"Benutzerliste — Seite {page + 1}/{pages}");
                 BodyRightManager.SetRenderable(table);
-                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
 
 
                 var actions = new List<string>();
@@ -205,7 +205,7 @@ namespace Aufgaben_Managment_Tool
             {
                 BodyRightManager.SetTitle("Benutzer bearbeiten");
                 BodyRightManager.Set("[grey]Keine Benutzer vorhanden[/]");
-                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
             }
 
@@ -215,16 +215,19 @@ namespace Aufgaben_Managment_Tool
                 .Select(u => $"{u.Username}  ({u.Role})")
                 .ToList();
 
+            User userToEdit;
+            string originalUsername;
+
             if (choices.Count == 1)
             {
                 var singleLabel = choices[0];
-                var user = users[0];
                 var edit = AnsiConsole.Confirm($"Einziger Benutzer: {singleLabel}. Möchten Sie diesen bearbeiten?");
                 if (!edit)
                 {
-                    UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                    UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                     return;
                 }
+                userToEdit = users[0];
             }
             else
             {
@@ -239,7 +242,7 @@ namespace Aufgaben_Managment_Tool
 
                 if (selected == backDisplay)
                 {
-                    UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                    UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                     return;
                 }
 
@@ -247,16 +250,14 @@ namespace Aufgaben_Managment_Tool
                 if (idx < 0 || idx >= users.Count)
                 {
                     AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
-                    UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                    UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                     return;
                 }
 
-                var chosen = users[idx];
-
-                users = new List<User> { chosen };
+                userToEdit = users[idx];
             }
 
-            var userToEdit = users[0];
+            originalUsername = userToEdit.Username;
 
             bool changeName = AnsiConsole.Confirm("Möchten Sie den Benutzernamen ändern?");
 
@@ -267,20 +268,20 @@ namespace Aufgaben_Managment_Tool
                     {
                         if (newName.Length < 3)
                         {
-                            return ValidationResult.Error("[red]Der Benutzername muss mindestens 3 Zeichen lang sein.[/>");
+                            return ValidationResult.Error("[red]Der Benutzername muss mindestens 3 Zeichen lang sein.[/]");
                         }
 
                         var allUsers = UserRepository.LoadUsers();
-                        if (allUsers.Any(u => u.Username.Equals(newName, StringComparison.OrdinalIgnoreCase) && !u.Username.Equals(userToEdit.Username, StringComparison.OrdinalIgnoreCase)))
+                        if (allUsers.Any(u => u.Username.Equals(newName, StringComparison.OrdinalIgnoreCase) && !u.Username.Equals(originalUsername, StringComparison.OrdinalIgnoreCase)))
                         {
-                            return ValidationResult.Error("[red]Dieser Benutzername ist bereits vergeben.[/>");
+                            return ValidationResult.Error("[red]Dieser Benutzername ist bereits vergeben.[/]");
                         }
                         return ValidationResult.Success();
                     }));
             }
 
             var currentSessionUser = Session.CurrentUser;
-            bool editingSelf = currentSessionUser != null && currentSessionUser.Username.Equals(userToEdit.Username, StringComparison.OrdinalIgnoreCase);
+            bool editingSelf = currentSessionUser != null && currentSessionUser.Username.Equals(originalUsername, StringComparison.OrdinalIgnoreCase);
 
             if (editingSelf)
             {
@@ -293,7 +294,6 @@ namespace Aufgaben_Managment_Tool
                     .Title("Bitte wählen Sie die neue Rolle:")
                     .AddChoices(UserRole.Admin, UserRole.User));
 
-
                 if (userToEdit.Role == UserRole.Admin && newRole == UserRole.User)
                 {
                     var adminCount = UserRepository.LoadUsers().Count(u => u.Role == UserRole.Admin);
@@ -302,7 +302,7 @@ namespace Aufgaben_Managment_Tool
                         AnsiConsole.MarkupLine("[red]Aktion abgebrochen: Es muss mindestens ein Administrator vorhanden sein.[/]");
                         BodyRightManager.SetTitle("Rollenänderung abgebrochen");
                         BodyRightManager.Set("Es ist nicht erlaubt, den letzten Administrator zu entziehen.");
-                        UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                        UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                     }
                     else
                     {
@@ -320,22 +320,25 @@ namespace Aufgaben_Managment_Tool
                 userToEdit.SetPassword();
 
             var all = UserRepository.LoadUsers();
-            var indexInAll = all.FindIndex(u => u.Username.Equals(userToEdit.Username, StringComparison.OrdinalIgnoreCase));
+            var indexInAll = all.FindIndex(u => u.Username.Equals(originalUsername, StringComparison.OrdinalIgnoreCase));
             if (indexInAll >= 0)
             {
                 all[indexInAll] = userToEdit;
             }
             else
             {
-                if (!all.Any(u => u.Username.Equals(userToEdit.Username, StringComparison.OrdinalIgnoreCase)))
+                var idxNew = all.FindIndex(u => u.Username.Equals(userToEdit.Username, StringComparison.OrdinalIgnoreCase));
+                if (idxNew >= 0)
+                    all[idxNew] = userToEdit;
+                else
                     all.Add(userToEdit);
             }
             UserRepository.SaveUsers(all);
 
             AnsiConsole.MarkupLine($"[green]Benutzer {userToEdit.Username} wurde aktualisiert.[/]");
 
-            var total = UserRepository.LoadUsers().Count;
-            var admins = UserRepository.LoadUsers().Count(u => u.Role == UserRole.Admin);
+            var total = all.Count;
+            var admins = all.Count(u => u.Role == UserRole.Admin);
             BodyRightManager.SetTitle($"Benutzer aktualisiert: {userToEdit.Username}");
             BodyRightManager.Set(
                 $"Gesamt Benutzer: {total}{Environment.NewLine}" +
@@ -343,7 +346,7 @@ namespace Aufgaben_Managment_Tool
                 $"Letzte Aktion:{Environment.NewLine}- Benutzer '{userToEdit.Username}' aktualisiert"
             );
 
-            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+            UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
         }
         public static void DeleteUser()
         {
@@ -353,7 +356,7 @@ namespace Aufgaben_Managment_Tool
             {
                 BodyRightManager.SetTitle("Benutzer löschen");
                 BodyRightManager.Set("[grey]Keine Benutzer vorhanden[/]");
-                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
             }
 
@@ -375,7 +378,7 @@ namespace Aufgaben_Managment_Tool
 
                 if (confirm == "Zurück")
                 {
-                    UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                    UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                     return;
                 }
 
@@ -384,7 +387,7 @@ namespace Aufgaben_Managment_Tool
                     AnsiConsole.MarkupLine("[red]Der Administrator kann nicht gelöscht werden![/]");
                     BodyRightManager.SetTitle("Benutzer löschen");
                     BodyRightManager.Add("Löschversuch eines Administrators abgebrochen.");
-                    UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                    UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                     return;
                 }
 
@@ -402,7 +405,7 @@ namespace Aufgaben_Managment_Tool
                     $"Letzte Aktion:{Environment.NewLine}- Benutzer '{onlyUser.Username}' gelöscht"
                 );
 
-                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
             }
 
@@ -417,7 +420,7 @@ namespace Aufgaben_Managment_Tool
 
             if (selected == backDisplay)
             {
-                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
             }
 
@@ -425,7 +428,7 @@ namespace Aufgaben_Managment_Tool
             if (idx < 0 || idx >= users.Count)
             {
                 AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
-                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
             }
 
@@ -436,7 +439,7 @@ namespace Aufgaben_Managment_Tool
                 AnsiConsole.MarkupLine("[red]Der Administrator kann nicht gelöscht werden![/]");
                 BodyRightManager.SetTitle("Benutzer löschen");
                 BodyRightManager.Add("Löschversuch eines Administrators abgebrochen.");
-                UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+                UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
             }
 
@@ -454,7 +457,7 @@ namespace Aufgaben_Managment_Tool
                 $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' gelöscht"
             );
 
-            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
+            UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
         }
     }
 }

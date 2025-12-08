@@ -8,9 +8,14 @@ namespace Aufgaben_Managment_Tool
     {
         private const string FilePath = "tasks.json";
 
+        public static List<TaskItem> LoadAllTasks()
+        {
+            return StorageManager<TaskItem>.Load(FilePath) ?? new List<TaskItem>();
+        }
+
         public static List<TaskItem> LoadTasks()
         {
-            var tasks = StorageManager<TaskItem>.Load(FilePath);
+            var tasks = LoadAllTasks();
             var usertasks = new List<TaskItem>();
             foreach (var _usertask in tasks)
             {
@@ -24,7 +29,29 @@ namespace Aufgaben_Managment_Tool
 
         public static void SaveTasks(List<TaskItem> tasks)
         {
-            StorageManager<TaskItem>.Save(FilePath, tasks);
+            if (Session.CurrentUser == null)
+            {
+                StorageManager<TaskItem>.Save(FilePath, tasks);
+                return;
+            }
+
+            var all = LoadAllTasks();
+
+
+            all.RemoveAll(t => t.AssignedUser == Session.CurrentUser.Username);
+
+            foreach (var t in tasks)
+            {
+                if (string.IsNullOrWhiteSpace(t.AssignedUser))
+                    t.AssignedUser = Session.CurrentUser.Username;
+            }
+
+            all.AddRange(tasks);
+            StorageManager<TaskItem>.Save(FilePath, all);
+        }
+        public static void SaveAllTasks(List<TaskItem> allTasks)
+        {
+            StorageManager<TaskItem>.Save(FilePath, allTasks);
         }
     }
 }

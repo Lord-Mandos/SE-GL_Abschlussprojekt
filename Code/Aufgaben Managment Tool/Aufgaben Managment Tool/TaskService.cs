@@ -8,7 +8,7 @@ namespace Aufgaben_Managment_Tool
 {
     internal class TaskService
     {
-        public static void createTask()
+        public static void CreateTask()
         {
             var tasks = TaskRepository.LoadTasks();
 
@@ -54,10 +54,10 @@ namespace Aufgaben_Managment_Tool
                 $"Erstellt: {newTask.CreateAt:yyyy-MM-dd HH:mm}"
             );
 
-            UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+            UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
         }
 
-        public static void deleteTask()
+        public static void DeleteTask()
         {
             var tasks = TaskRepository.LoadTasks();
 
@@ -65,7 +65,7 @@ namespace Aufgaben_Managment_Tool
             {
                 BodyRightManager.SetTitle("Aufgabe löschen");
                 BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -77,7 +77,7 @@ namespace Aufgaben_Managment_Tool
                 var confirm = AnsiConsole.Confirm($"Einzige Aufgabe: '{only.Title}' (Fällig: {only.DueDate:yyyy-MM-dd}). Möchten Sie diese löschen?");
                 if (!confirm)
                 {
-                    UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                    UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                     return;
                 }
 
@@ -93,7 +93,7 @@ namespace Aufgaben_Managment_Tool
                     );
                 }
 
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -111,7 +111,7 @@ namespace Aufgaben_Managment_Tool
 
             if (selected == backDisplay)
             {
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -119,7 +119,7 @@ namespace Aufgaben_Managment_Tool
             if (idx < 0 || idx >= tasks.Count)
             {
                 AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -133,10 +133,10 @@ namespace Aufgaben_Managment_Tool
                 $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{task.Title}' gelöscht"
             );
 
-            UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+            UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
         }
 
-        public static void updateTask()
+        public static void UpdateTask()
         {
             var tasks = TaskRepository.LoadTasks();
 
@@ -144,7 +144,7 @@ namespace Aufgaben_Managment_Tool
             {
                 BodyRightManager.SetTitle("Aufgabe bearbeiten");
                 BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -158,7 +158,7 @@ namespace Aufgaben_Managment_Tool
                 var proceed = AnsiConsole.Confirm($"Einzige Aufgabe: '{taskToEdit.Title}' (Fällig: {taskToEdit.DueDate:yyyy-MM-dd}). Möchten Sie diese bearbeiten?");
                 if (!proceed)
                 {
-                    UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                    UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                     return;
                 }
             }
@@ -178,7 +178,7 @@ namespace Aufgaben_Managment_Tool
 
                 if (selected == backDisplay)
                 {
-                    UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                    UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                     return;
                 }
 
@@ -186,7 +186,7 @@ namespace Aufgaben_Managment_Tool
                 if (idx < 0 || idx >= tasks.Count)
                 {
                     AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
-                    UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                    UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                     return;
                 }
 
@@ -236,7 +236,7 @@ namespace Aufgaben_Managment_Tool
                 $"Fällig: {taskToEdit.DueDate:yyyy-MM-dd}"
             );
 
-            UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+            UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
         }
 
         public static void ShowTasks()
@@ -247,7 +247,7 @@ namespace Aufgaben_Managment_Tool
             {
                 BodyRightManager.SetTitle("Aufgaben");
                 BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -386,7 +386,7 @@ namespace Aufgaben_Managment_Tool
 
                 BodyRightManager.SetTitle($"Aufgaben — Seite {page + 1}/{pages}");
                 BodyRightManager.SetRenderable(grid);
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
 
                 var actions = new List<string>();
                 if (page < pages - 1) actions.Add("Weiter →");
@@ -456,7 +456,7 @@ namespace Aufgaben_Managment_Tool
 
                 BodyRightManager.SetTitle($"Kanban-Board — Seite {page + 1}/{pages}");
                 BodyRightManager.SetRenderable(table);
-                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
 
                 var actions = new List<string>();
                 if (page < pages - 1) actions.Add("Weiter →");
@@ -486,14 +486,14 @@ namespace Aufgaben_Managment_Tool
             }
         }
 
-        public static void changeTaskStatus()
+        public static void ChangeTaskStatus()
         {
             var tasks = TaskRepository.LoadTasks().OrderBy(t => t.DueDate).ToList();
             if (tasks.Count == 0)
             {
                 BodyRightManager.SetTitle("Kanban - Verschieben");
                 BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
-                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                 return;
             }
 
@@ -505,7 +505,7 @@ namespace Aufgaben_Managment_Tool
                 var proceed = AnsiConsole.Confirm($"Einzige Aufgabe: '{only.Title}' (Fällig: {only.DueDate:yyyy-MM-dd}). Möchten Sie den Status ändern?");
                 if (!proceed)
                 {
-                    UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                    UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                     return;
                 }
 
@@ -518,7 +518,7 @@ namespace Aufgaben_Managment_Tool
                 if (newStatusSingle == only.Status)
                 {
                     AnsiConsole.MarkupLine("[yellow]Status unverändert.[/]");
-                    UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                    UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                     return;
                 }
 
@@ -529,7 +529,7 @@ namespace Aufgaben_Managment_Tool
                 MenuSystem.UpdateMainOverview(
                     $"Aufgabe '{only.Title}' verschoben von {oldStatusSingle} zu {newStatusSingle}.{Environment.NewLine}Fällig: {only.DueDate:yyyy-MM-dd}");
                 AnsiConsole.MarkupLine("[green]Status erfolgreich geändert.[/]");
-                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                 return;
             }
 
@@ -546,7 +546,7 @@ namespace Aufgaben_Managment_Tool
 
             if (selectedLabel == backDisplay)
             {
-                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                 return;
             }
 
@@ -555,7 +555,7 @@ namespace Aufgaben_Managment_Tool
             if (idx < 0 || idx >= tasks.Count)
             {
                 AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
-                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                 return;
             }
 
@@ -572,7 +572,7 @@ namespace Aufgaben_Managment_Tool
                 AnsiConsole.MarkupLine("[yellow]Status unverändert.[/]");
                 BodyRightManager.SetTitle("Verschieben abgebrochen");
                 BodyRightManager.Set($"Aufgabe '{task.Title}' bleibt im Status {task.Status}.");
-                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                 return;
             }
 
@@ -583,7 +583,7 @@ namespace Aufgaben_Managment_Tool
             MenuSystem.UpdateMainOverview(
                 $"Aufgabe '{task.Title}' verschoben von {oldStatus} zu {newStatus}.{Environment.NewLine}Fällig: {task.DueDate:yyyy-MM-dd}");
             AnsiConsole.MarkupLine("[green]Status erfolgreich geändert.[/]");
-            UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+            UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
         }
 
         public static void ShowTaskDetails()
@@ -594,7 +594,7 @@ namespace Aufgaben_Managment_Tool
             {
                 BodyRightManager.SetTitle("Aufgabe anzeigen");
                 BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -604,7 +604,7 @@ namespace Aufgaben_Managment_Tool
             {
                 var only = tasks[0];
                 RenderTaskDetails(only);
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -621,7 +621,7 @@ namespace Aufgaben_Managment_Tool
 
             if (selected == backDisplay)
             {
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -629,13 +629,13 @@ namespace Aufgaben_Managment_Tool
             if (index < 0 || index >= tasks.Count)
             {
                 AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
             var task = tasks[index];
             RenderTaskDetails(task);
-            UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+            UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
         }
 
         private static void RenderTaskDetails(TaskItem task)

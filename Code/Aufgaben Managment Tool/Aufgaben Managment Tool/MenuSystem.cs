@@ -4,7 +4,7 @@ namespace Aufgaben_Managment_Tool
 {
     internal class MenuSystem
     {
-        public static List<Markup> mainMenuText = new List<Markup>
+        public static List<Markup> MainMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Aufgabenverwaltung[/]"),
             new Markup("[green]>[/] [grey100]2. Kanban-Board[/]"),
@@ -12,7 +12,7 @@ namespace Aufgaben_Managment_Tool
             new Markup("[green]>[/] [grey100]4. Benutzerverwaltung[/]"),
             new Markup("[green]>[/] [grey100]5. Beenden[/]")
         };
-        public static List<Markup> taskMenuText = new List<Markup>
+        public static List<Markup> TaskMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Aufgabe erstellen[/]"),
             new Markup("[green]>[/] [grey100]2. Aufgaben anzeigen[/]"),
@@ -21,7 +21,7 @@ namespace Aufgaben_Managment_Tool
             new Markup("[green]>[/] [grey100]5. Aufgabe löschen[/]"),
             new Markup("[green]>[/] [grey100]6. Zurück[/]")
         };
-        public static List<Markup> kanbanBoardMenuText = new List<Markup>
+        public static List<Markup> KanbanBoardMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Board anzeigen[/]"),
             new Markup("[green]>[/] [grey100]2. Aufgabe verschieben[/]"),
@@ -29,7 +29,7 @@ namespace Aufgaben_Managment_Tool
             new Markup("[green]>[/] [grey100]4. Zurück[/]")
         };
 
-        public static List<Markup> userMenuText = new List<Markup>
+        public static List<Markup> UserMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Benutzer erstellen[/]"),
             new Markup("[green]>[/] [grey100]2. Benutzer anzeigen[/]"),
@@ -80,18 +80,18 @@ namespace Aufgaben_Managment_Tool
 
         public static void UserMenuChoice(List<Markup> menuText)
         {
-            int choice = AnsiConsole.Prompt<int>((new TextPrompt<int>("Bitte wählen Sie eine Option:").AddChoices<int>(Enumerable.Range(1, menuText.Count))));
-            if (menuText == mainMenuText)
+            int choice = AnsiConsole.Prompt<int>(( new TextPrompt<int>("Bitte wählen Sie eine Option:").AddChoices<int>(Enumerable.Range(1,menuText.Count))));
+            if (menuText == MainMenuText)
             {
                 switch (choice)
                 {
                     case 1:
                         UpdateMainOverview("Aufgabenverwaltung geöffnet");
-                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        UIRenderer.UIMain(TaskMenuText, "Aufgabenverwaltung");
                         break;
                     case 2:
                         UpdateMainOverview("Kanban-Board geöffnet");
-                        UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
+                        UIRenderer.UIMain(KanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 3:
                         AuthManager.Logout();
@@ -100,12 +100,12 @@ namespace Aufgaben_Managment_Tool
                         if (Session.CurrentUser != null && Session.CurrentUser.Role == UserRole.Admin)
                         {
                             UpdateMainOverview("Benutzerverwaltung geöffnet");
-                            UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                            UIRenderer.UIMain(UserMenuText, "Benutzerverwaltung");
                         }
                         else
                         {
                             UpdateMainOverview("[red]Zugriff verweigert: Nur Administratoren dürfen die Benutzerverwaltung nutzen.[/]");
-                            UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                            UIRenderer.UIMain(MainMenuText, "Hauptmenü");
                         }
                         break;
                     case 5:
@@ -114,89 +114,89 @@ namespace Aufgaben_Managment_Tool
                         break;
                     default:
                         AnsiConsole.MarkupLine("[red]Ungültige Auswahl. Bitte versuchen Sie es erneut.[/]");
-                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        UIRenderer.UIMain(MainMenuText, "Hauptmenü");
                         break;
                 }
             }
-            else if (menuText == taskMenuText)
+            else if (menuText == TaskMenuText)
             {
                 switch (choice)
                 {
                     case 1:
-                        TaskService.createTask();
-                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        TaskService.CreateTask();
+                        UIRenderer.UIMain(TaskMenuText, "Aufgabenverwaltung");
                         break;
                     case 2:
                         TaskService.ShowTasks();
-                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        UIRenderer.UIMain(TaskMenuText, "Aufgabenverwaltung");
                         break;
                     case 3:
                         TaskService.ShowTaskDetails();
-                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        UIRenderer.UIMain(TaskMenuText, "Aufgabenverwaltung");
                         break;
                     case 4:
-                        TaskService.updateTask();
-                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        TaskService.UpdateTask();
+                        UIRenderer.UIMain(TaskMenuText, "Aufgabenverwaltung");
                         break;
                     case 5:
-                        TaskService.deleteTask();
-                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        TaskService.DeleteTask();
+                        UIRenderer.UIMain(TaskMenuText, "Aufgabenverwaltung");
                         break;
                     case 6:
                         UpdateMainOverview("Zurück zum Hauptmenü");
-                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        UIRenderer.UIMain(MainMenuText, "Hauptmenü");
                         break;
                     default:
                         AnsiConsole.MarkupLine("[red]Ungültige Auswahl. Bitte versuchen Sie es erneut.[/]");
-                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
+                        UIRenderer.UIMain(TaskMenuText, "Aufgabenverwaltung");
                         break;
                 }
             }
-            else if (menuText == kanbanBoardMenuText)
+            else if (menuText == KanbanBoardMenuText)
             {
                 switch (choice)
                 {
                     case 1:
                         TaskService.ShowKanbanBoard();
-                        UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
+                        UIRenderer.UIMain(KanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 2:
-                        TaskService.changeTaskStatus();
-                        UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
+                        TaskService.ChangeTaskStatus();
+                        UIRenderer.UIMain(KanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 3:
                         TaskService.ShowTaskDetails();
-                        UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
+                        UIRenderer.UIMain(KanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 4:
                         UpdateMainOverview("Zurück zum Hauptmenü");
-                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        UIRenderer.UIMain(MainMenuText, "Hauptmenü");
                         break;
                 }
             }
-            else if (menuText == userMenuText)
+            else if (menuText == UserMenuText)
             {
                 switch (choice)
                 {
                     case 1:
                         UserService.CreateUserAdmin();
-                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        UIRenderer.UIMain(UserMenuText, "Benutzerverwaltung");
                         break;
                     case 2:
                         UserService.GetUsers();
-                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        UIRenderer.UIMain(UserMenuText, "Benutzerverwaltung");
                         break;
                     case 3:
                         UserService.UpdateUser();
-                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        UIRenderer.UIMain(UserMenuText, "Benutzerverwaltung");
                         break;
                     case 4:
                         UserService.DeleteUser();
-                        UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
+                        UIRenderer.UIMain(UserMenuText, "Benutzerverwaltung");
                         break;
                     case 5:
                         UpdateMainOverview("Zurück zum Hauptmenü");
-                        UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                        UIRenderer.UIMain(MainMenuText, "Hauptmenü");
                         break;
                 }
             }
@@ -208,7 +208,7 @@ namespace Aufgaben_Managment_Tool
                         if (AuthManager.Login())
                         {
                             UpdateMainOverview("Eingeloggt");
-                            UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                            UIRenderer.UIMain(MainMenuText, "Hauptmenü");
                             break;
                         }
                         else
