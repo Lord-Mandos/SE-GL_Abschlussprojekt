@@ -35,16 +35,9 @@
             users.Add(user);
             UserRepository.SaveUsers(users);
 
-            AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} mit Rolle {user.Role} wurde erstellt.[/]");
+            AnsiConsole.MarkupLine($"[bold green]Benutzer {user.Username} mit Rolle {user.Role} wurde erstellt.[/]");
 
-            var total = users.Count;
-            var admins = users.Count(u => u.Role == UserRole.Admin);
-            BodyRightManager.SetTitle($"Benutzer erstellt: {user.Username}");
-            BodyRightManager.Set(
-                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
-                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
-                $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' mit Rolle {user.Role} erstellt"
-            );
+            MenuSystem.UpdateMainOverview($"[bold green]Benutzer '{user.Username}' mit Rolle {user.Role} erstellt![/]");
 
             UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
         }
@@ -81,8 +74,7 @@
 
                 TaskRepository.SaveTasks(new List<TaskItem>());
 
-                BodyRightManager.SetTitle("Initialisierung abgeschlossen");
-                BodyRightManager.Set($"Administrator '{admin.Username}' erstellt.");
+                MenuSystem.UpdateMainOverview($"[bold green]Administrator '{admin.Username}' erstellt![/]");
             }
         }
 
@@ -116,16 +108,9 @@
             users.Add(user);
             UserRepository.SaveUsers(users);
 
-            AnsiConsole.MarkupLine($"[green]Registrierung erfolgreich. Benutzer {user.Username} wurde mit Rolle {user.Role} angelegt.[/]");
+            AnsiConsole.MarkupLine($"[bold green]Registrierung erfolgreich. Benutzer {user.Username} wurde mit Rolle {user.Role} angelegt.[/]");
 
-            var total = users.Count;
-            var admins = users.Count(u => u.Role == UserRole.Admin);
-            BodyRightManager.SetTitle($"Registrierung: {user.Username}");
-            BodyRightManager.Set(
-                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
-                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
-                $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' registriert"
-            );
+            MenuSystem.UpdateMainOverview($"[bold green]Benutzer '{user.Username}' registriert![/]");
 
             UIRenderer.Refresh(MenuSystem.StartMenu, "Startmenü");
         }
@@ -295,8 +280,8 @@
                     if (adminCount <= 1)
                     {
                         AnsiConsole.MarkupLine("[red]Aktion abgebrochen: Es muss mindestens ein Administrator vorhanden sein.[/]");
-                        BodyRightManager.SetTitle("Rollenänderung abgebrochen");
-                        BodyRightManager.Set("Es ist nicht erlaubt, den letzten Administrator zu entziehen.");
+
+                        MenuSystem.UpdateMainOverview("[red]Rollenänderung abgebrochen: Letzter Administrator darf nicht entfernt werden.[/]");
                         UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                     }
                     else
@@ -330,16 +315,9 @@
             }
             UserRepository.SaveUsers(all);
 
-            AnsiConsole.MarkupLine($"[green]Benutzer {userToEdit.Username} wurde aktualisiert.[/]");
+            AnsiConsole.MarkupLine($"[bold green]Benutzer {userToEdit.Username} wurde aktualisiert.[/]");
 
-            var total = all.Count;
-            var admins = all.Count(u => u.Role == UserRole.Admin);
-            BodyRightManager.SetTitle($"Benutzer aktualisiert: {userToEdit.Username}");
-            BodyRightManager.Set(
-                $"Gesamt Benutzer: {total}{Environment.NewLine}" +
-                $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
-                $"Letzte Aktion:{Environment.NewLine}- Benutzer '{userToEdit.Username}' aktualisiert"
-            );
+            MenuSystem.UpdateMainOverview($"[bold green]Benutzer '{userToEdit.Username}' aktualisiert![/]");
 
             UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
         }
@@ -380,8 +358,7 @@
                 if (onlyUser.Role == UserRole.Admin)
                 {
                     AnsiConsole.MarkupLine("[red]Der Administrator kann nicht gelöscht werden![/]");
-                    BodyRightManager.SetTitle("Benutzer löschen");
-                    BodyRightManager.Add("Löschversuch eines Administrators abgebrochen.");
+                    MenuSystem.UpdateMainOverview("[red]Löschversuch eines Administrators abgebrochen[/]");
                     UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                     return;
                 }
@@ -389,16 +366,9 @@
                 users.Remove(onlyUser);
                 UserRepository.SaveUsers(users);
 
-                AnsiConsole.MarkupLine($"[green]Benutzer {onlyUser.Username} wurde gelöscht.[/]");
+                AnsiConsole.MarkupLine($"[bold orange3]Benutzer {onlyUser.Username} wurde gelöscht![/]");
 
-                var total = users.Count;
-                var admins = users.Count(u => u.Role == UserRole.Admin);
-                BodyRightManager.SetTitle($"Benutzer gelöscht: {onlyUser.Username}");
-                BodyRightManager.Set(
-                    $"Gesamt Benutzer: {total}{Environment.NewLine}" +
-                    $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
-                    $"Letzte Aktion:{Environment.NewLine}- Benutzer '{onlyUser.Username}' gelöscht"
-                );
+                MenuSystem.UpdateMainOverview($"[bold orange3]Benutzer '{onlyUser.Username}' gelöscht![/]");
 
                 UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
@@ -432,8 +402,8 @@
             if (user.Role == UserRole.Admin)
             {
                 AnsiConsole.MarkupLine("[red]Der Administrator kann nicht gelöscht werden![/]");
-                BodyRightManager.SetTitle("Benutzer löschen");
-                BodyRightManager.Add("Löschversuch eines Administrators abgebrochen.");
+
+                MenuSystem.UpdateMainOverview("[red]Löschversuch eines Administrators abgebrochen[/]");
                 UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
                 return;
             }
@@ -441,16 +411,9 @@
             users.Remove(user);
             UserRepository.SaveUsers(users);
 
-            AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} wurde gelöscht.[/]");
+            AnsiConsole.MarkupLine($"[bold orange3]Benutzer {user.Username} wurde gelöscht![/]");
 
-            var totalAfter = users.Count;
-            var adminsAfter = users.Count(u => u.Role == UserRole.Admin);
-            BodyRightManager.SetTitle($"Benutzer gelöscht: {user.Username}");
-            BodyRightManager.Set(
-                $"Gesamt Benutzer: {totalAfter}{Environment.NewLine}" +
-                $"Administratoren: {adminsAfter}{Environment.NewLine}{Environment.NewLine}" +
-                $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' gelöscht"
-            );
+            MenuSystem.UpdateMainOverview($"[bold orange3]Benutzer '{user.Username}' gelöscht![/]");
 
             UIRenderer.Refresh(MenuSystem.UserMenuText, "Benutzerverwaltung");
         }

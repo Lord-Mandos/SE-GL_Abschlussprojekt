@@ -1,4 +1,6 @@
-﻿namespace Aufgaben_Managment_Tool
+﻿using System.Globalization;
+
+namespace Aufgaben_Managment_Tool
 {
     internal class TaskService
     {
@@ -30,25 +32,28 @@
                 new TextPrompt<string>("[bold yellow]kurze Aufgabenbeschreibung eingeben:[/]")
                 .PromptStyle("green"));
 
-            newTask.DueDate = AnsiConsole.Prompt<DateTime>(
-                new TextPrompt<DateTime>("[bold yellow]Fälligkeitsdatum eingeben (Format: JJJJ-MM-TT):[/]")
-                .PromptStyle("green"));
+            var dueDateInput = AnsiConsole.Prompt(
+                new TextPrompt<string>("[bold yellow]Fälligkeitsdatum eingeben (Format: TT.MM.JJJJ):[/]")
+                .PromptStyle("green")
+                .Validate(date =>
+                {
+                    var s = (date ?? string.Empty).Trim();
+                    if (DateTime.TryParseExact(s, "dd.MM.yyyy", CultureInfo.GetCultureInfo("de-DE"), DateTimeStyles.None, out _))
+                        return ValidationResult.Success();
+                    return ValidationResult.Error("[red]Ungültiges Datum. Bitte im Format TT.MM.JJJJ eingeben.[/]");
+                }));
+
+            newTask.DueDate = DateTime.ParseExact(dueDateInput.Trim(), "dd.MM.yyyy", CultureInfo.GetCultureInfo("de-DE"));
 
             tasks.Add(newTask);
             TaskRepository.SaveTasks(tasks);
 
-            var total = tasks.Count;
-            var open = tasks.Count(t => t.Status != TaskState.Done);
-            var today = tasks.Count(t => t.CreateAt.Date == DateTime.Now.Date);
+            AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich erstellt![/]");
 
-            BodyRightManager.SetTitle($"Aufgabe erstellt: {newTask.Title}");
-            BodyRightManager.Set(
-                $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
-                $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
-                $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}" +
-                $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{newTask.Title}' erstellt{Environment.NewLine}{Environment.NewLine}" +
-                $"Fälligkeitsdatum: {newTask.DueDate:yyyy-MM-dd}{Environment.NewLine}" +
-                $"Erstellt: {newTask.CreateAt:yyyy-MM-dd HH:mm}"
+            MenuSystem.UpdateMainOverview(
+                $"[bold green]Aufgabe '{newTask.Title}' erstellt![/]{Environment.NewLine}{Environment.NewLine}" +
+                $"Fälligkeitsdatum: {newTask.DueDate:dd.MM.yyyy}{Environment.NewLine}" +
+                $"Erstellt: {newTask.CreateAt:dd.MM.yyyy HH:mm}"
             );
 
             UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
@@ -71,7 +76,7 @@
             if (tasks.Count == 1)
             {
                 var only = tasks[0];
-                var confirm = AnsiConsole.Confirm($"Einzige Aufgabe: '{only.Title}' (Fällig: {only.DueDate:yyyy-MM-dd}). Möchten Sie diese löschen?");
+                var confirm = AnsiConsole.Confirm($"Einzige Aufgabe: '{only.Title}' (Fällig: {only.DueDate:dd.MM.yyyy}). Möchten Sie diese löschen?");
                 if (!confirm)
                 {
                     UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
@@ -82,12 +87,9 @@
                 {
                     tasks.Remove(only);
                     TaskRepository.SaveTasks(tasks);
-                    AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich gelöscht![/]");
+                    AnsiConsole.MarkupLine("[bold orange3]Aufgabe erfolgreich gelöscht![/]");
 
-                    BodyRightManager.SetTitle($"Aufgabe gelöscht: {only.Title}");
-                    BodyRightManager.Set(
-                        $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{only.Title}' gelöscht"
-                    );
+                    MenuSystem.UpdateMainOverview($"[bold orange3]Aufgabe '{only.Title}' gelöscht![/]");
                 }
 
                 UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
@@ -95,7 +97,7 @@
             }
 
             var choices = tasks
-                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:yyyy-MM-dd})")
+                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:dd.MM.yyyy})")
                 .ToList();
             choices.Add(backDisplay);
 
@@ -123,12 +125,9 @@
             var task = tasks[idx];
             tasks.Remove(task);
             TaskRepository.SaveTasks(tasks);
-            AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich gelöscht![/]");
+            AnsiConsole.MarkupLine("[bold orange3]Aufgabe erfolgreich gelöscht![/]");
 
-            BodyRightManager.SetTitle($"Aufgabe gelöscht: {task.Title}");
-            BodyRightManager.Set(
-                $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{task.Title}' gelöscht"
-            );
+            MenuSystem.UpdateMainOverview($"[bold orange3]Aufgabe '{task.Title}' gelöscht![/]");
 
             UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
         }
@@ -152,7 +151,7 @@
             if (tasks.Count == 1)
             {
                 taskToEdit = tasks[0];
-                var proceed = AnsiConsole.Confirm($"Einzige Aufgabe: '{taskToEdit.Title}' (Fällig: {taskToEdit.DueDate:yyyy-MM-dd}). Möchten Sie diese bearbeiten?");
+                var proceed = AnsiConsole.Confirm($"Einzige Aufgabe: '{taskToEdit.Title}' (Fällig: {taskToEdit.DueDate:dd.MM.yyyy}). Möchten Sie diese bearbeiten?");
                 if (!proceed)
                 {
                     UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
@@ -162,7 +161,7 @@
             else
             {
                 var choices = tasks
-                    .Select(t => $"{t.Title}  (Fällig: {t.DueDate:yyyy-MM-dd})")
+                    .Select(t => $"{t.Title}  (Fällig: {t.DueDate:dd.MM.yyyy})")
                     .ToList();
                 choices.Add(backDisplay);
 
@@ -209,10 +208,19 @@
                 .PromptStyle("green")
                 .DefaultValue(taskToEdit.Description));
 
-            taskToEdit.DueDate = AnsiConsole.Prompt<DateTime>(
-                new TextPrompt<DateTime>($"[bold yellow]Neues Fälligkeitsdatum eingeben (Format: JJJJ-MM-TT):[/]")
+            var dueInput = AnsiConsole.Prompt(
+                new TextPrompt<string>($"[bold yellow]Neues Fälligkeitsdatum eingeben (Format: TT.MM.JJJJ):[/]")
                 .PromptStyle("green")
-                .DefaultValue(taskToEdit.DueDate));
+                .DefaultValue(taskToEdit.DueDate.ToString("dd.MM.yyyy"))
+                .Validate(date =>
+                {
+                    var s = (date ?? string.Empty).Trim();
+                    if (DateTime.TryParseExact(s, "dd.MM.yyyy", CultureInfo.GetCultureInfo("de-DE"), DateTimeStyles.None, out _))
+                        return ValidationResult.Success();
+                    return ValidationResult.Error("[red]Ungültiges Datum. Bitte im Format TT.MM.JJJJ eingeben.[/]");
+                }));
+
+            taskToEdit.DueDate = DateTime.ParseExact(dueInput.Trim(), "dd.MM.yyyy", CultureInfo.GetCultureInfo("de-DE"));
 
             taskToEdit.Status = AnsiConsole.Prompt<TaskState>(
                 new SelectionPrompt<TaskState>()
@@ -229,11 +237,10 @@
 
             AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich aktualisiert![/]");
 
-            MenuSystem.UpdateMainOverview
-            (
-                $"{Environment.NewLine}- Aufgabe '{taskToEdit.Title}' aktualisiert{Environment.NewLine}{Environment.NewLine}" +
+            MenuSystem.UpdateMainOverview(
+                $"[bold green]- Aufgabe '{taskToEdit.Title}' aktualisiert[/]{Environment.NewLine}{Environment.NewLine}" +
                 $"Status: {taskToEdit.Status}{Environment.NewLine}" +
-                $"Fällig: {taskToEdit.DueDate:yyyy-MM-dd}"
+                $"Fällig: {taskToEdit.DueDate:dd.MM.yyyy}"
             );
 
             UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
@@ -351,7 +358,7 @@
                     var truncatedDesc = WrapAndTruncateText(t.Description ?? string.Empty, panelTextWidth, maxTextLines);
                     var contentText = $"[bold yellow]{t.Title}[/]{Environment.NewLine}" +
                                       $"{truncatedDesc}{Environment.NewLine}{Environment.NewLine}" +
-                                      $"[grey]Fällig: {t.DueDate:yyyy-MM-dd}[/]";
+                                      $"[grey]Fällig: {t.DueDate:dd.MM.yyyy}[/]";
                     var raw = new Markup(contentText);
                     var centered = Align.Center(raw, VerticalAlignment.Top);
                     return new Panel(centered)
@@ -447,9 +454,9 @@
 
                 for (int r = 0; r < rowsPerColumn; r++)
                 {
-                    string cellTodo = r < todoPage.Count ? $"[bold yellow]{todoPage[r].Title}[/]\n[grey]Fällig: {todoPage[r].DueDate:yyyy-MM-dd}[/]" : "";
-                    string cellInProg = r < inProgPage.Count ? $"[bold yellow]{inProgPage[r].Title}[/]\n[grey]Fällig: {inProgPage[r].DueDate:yyyy-MM-dd}[/]" : "";
-                    string cellDone = r < donePage.Count ? $"[bold yellow]{donePage[r].Title}[/]\n[grey]Fällig: {donePage[r].DueDate:yyyy-MM-dd}[/]" : "";
+                    string cellTodo = r < todoPage.Count ? $"[bold yellow]{todoPage[r].Title}[/]\n[grey]Fällig: {todoPage[r].DueDate:dd.MM.yyyy}[/]" : "";
+                    string cellInProg = r < inProgPage.Count ? $"[bold yellow]{inProgPage[r].Title}[/]\n[grey]Fällig: {inProgPage[r].DueDate:dd.MM.yyyy}[/]" : "";
+                    string cellDone = r < donePage.Count ? $"[bold yellow]{donePage[r].Title}[/]\n[grey]Fällig: {donePage[r].DueDate:dd.MM.yyyy}[/]" : "";
 
                     table.AddRow(cellTodo, cellInProg, cellDone);
                 }
@@ -502,7 +509,7 @@
             if (tasks.Count == 1)
             {
                 var only = tasks[0];
-                var proceed = AnsiConsole.Confirm($"Einzige Aufgabe: '{only.Title}' (Fällig: {only.DueDate:yyyy-MM-dd}). Möchten Sie den Status ändern?");
+                var proceed = AnsiConsole.Confirm($"Einzige Aufgabe: '{only.Title}' (Fällig: {only.DueDate:dd.MM.yyyy}). Möchten Sie den Status ändern?");
                 if (!proceed)
                 {
                     UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
@@ -527,14 +534,14 @@
                 TaskRepository.SaveTasks(tasks);
 
                 MenuSystem.UpdateMainOverview(
-                    $"Aufgabe '{only.Title}' verschoben von {oldStatusSingle} zu {newStatusSingle}.{Environment.NewLine}Fällig: {only.DueDate:yyyy-MM-dd}");
-                AnsiConsole.MarkupLine("[green]Status erfolgreich geändert.[/]");
+                    $"[bold green]Aufgabe '{only.Title}' verschoben von {oldStatusSingle} zu {newStatusSingle}.[/]{Environment.NewLine}Fällig: {only.DueDate:dd.MM.yyyy}");
+                AnsiConsole.MarkupLine("[bold green]Status erfolgreich geändert![/]");
                 UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                 return;
             }
 
             var choices = tasks
-                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:yyyy-MM-dd})")
+                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:dd.MM.yyyy})")
                 .ToList();
             choices.Add(backDisplay);
 
@@ -570,8 +577,7 @@
             if (newStatus == task.Status)
             {
                 AnsiConsole.MarkupLine("[yellow]Status unverändert.[/]");
-                BodyRightManager.SetTitle("Verschieben abgebrochen");
-                BodyRightManager.Set($"Aufgabe '{task.Title}' bleibt im Status {task.Status}.");
+                MenuSystem.UpdateMainOverview($"[red]Verschieben abgebrochen: Aufgabe '{task.Title}' bleibt im Status {task.Status}.[/]");
                 UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
                 return;
             }
@@ -581,8 +587,9 @@
             TaskRepository.SaveTasks(tasks);
 
             MenuSystem.UpdateMainOverview(
-                $"Aufgabe '{task.Title}' verschoben von {oldStatus} zu {newStatus}.{Environment.NewLine}Fällig: {task.DueDate:yyyy-MM-dd}");
-            AnsiConsole.MarkupLine("[green]Status erfolgreich geändert.[/]");
+                $"[bold green]Aufgabe '{task.Title}' verschoben von {oldStatus} zu {newStatus}.[/]{Environment.NewLine}Fällig: {task.DueDate:dd.MM.yyyy}");
+            AnsiConsole.MarkupLine("[bold green]Status erfolgreich geändert![/]");
+
             UIRenderer.Refresh(MenuSystem.KanbanBoardMenuText, "Kanban-Board");
         }
 
@@ -609,7 +616,7 @@
             }
 
             var choices = tasks
-                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:yyyy-MM-dd})")
+                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:dd.MM.yyyy})")
                 .ToList();
             choices.Add(backDisplay);
 
@@ -628,8 +635,7 @@
             var index = choices.IndexOf(selected);
             if (index < 0 || index >= tasks.Count)
             {
-                AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
-                UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
+                AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]"); UIRenderer.Refresh(MenuSystem.TaskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
@@ -646,8 +652,8 @@
 
             table.AddRow("[grey]Titel[/]", $"[bold yellow]{task.Title}[/]");
             table.AddRow("[grey]Beschreibung[/]", string.IsNullOrWhiteSpace(task.Description) ? "[grey]—[/]" : task.Description);
-            table.AddRow("[grey]Erstellt[/]", task.CreateAt.ToString("yyyy-MM-dd HH:mm"));
-            table.AddRow("[grey]Fälligkeitsdatum[/]", task.DueDate.ToString("yyyy-MM-dd"));
+            table.AddRow("[grey]Erstellt[/]", task.CreateAt.ToString("dd.MM.yyyy HH:mm"));
+            table.AddRow("[grey]Fälligkeitsdatum[/]", task.DueDate.ToString("dd.MM.yyyy"));
             table.AddRow("[grey]Status[/]", task.Status.ToString());
             table.AddRow("[grey]Zugewiesen an[/]", string.IsNullOrWhiteSpace(task.AssignedUser) ? "[grey]—[/]" : task.AssignedUser);
             table.AddRow("[grey]ID[/]", task.Id.ToString());
