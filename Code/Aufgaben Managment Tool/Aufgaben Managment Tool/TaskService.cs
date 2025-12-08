@@ -61,35 +61,59 @@ namespace Aufgaben_Managment_Tool
         {
 
             var tasks = TaskRepository.LoadTasks();
-            var taskTitle = AnsiConsole.Prompt<string>(
-                new TextPrompt<string>("[bold yellow]Geben Sie den Titel der zu löschenden Aufgabe ein:[/]")
-                .PromptStyle("green"));
 
-            var task = tasks.FirstOrDefault(t => t.Title.Equals(taskTitle, StringComparison.OrdinalIgnoreCase));
-            if (task != null)
+            if (tasks.Count == 0)
             {
-                tasks.Remove(task);
-                TaskRepository.SaveTasks(tasks);
-                AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich gelöscht![/]");
-
-                var total = tasks.Count;
-                var open = tasks.Count(t => t.Status != TaskState.Done);
-                var today = tasks.Count(t => t.CreateAt.Date == DateTime.Now.Date);
-
-                BodyRightManager.SetTitle($"Aufgabe gelöscht: {task.Title}");
-                BodyRightManager.Set(
-                    $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
-                    $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
-                    $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}" +
-                    $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{task.Title}' gelöscht"
-                );
+                BodyRightManager.SetTitle("Aufgabe löschen");
+                BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
             }
-            else
+
+            var choices = tasks
+                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:yyyy-MM-dd})")
+                .ToList();
+
+            const string backDisplay = "[grey]←[/] [yellow]Zurück[/]";
+            choices.Add(backDisplay);
+
+            var selected = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title($"[bold yellow]Wähle die Aufgabe die gelöscht werden soll:[/]")
+                    .PageSize(Math.Min(20, choices.Count))
+                    .AddChoices(choices)
+            );
+
+            if (selected == backDisplay)
             {
-                AnsiConsole.MarkupLine("[bold red]Aufgabe nicht gefunden![/]");
-                BodyRightManager.SetTitle("Löschversuch fehlgeschlagen");
-                BodyRightManager.Set($"Letzte Aktion: Löschversuch fehlgeschlagen für Titel '{taskTitle}'");
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
             }
+
+            var idx = choices.IndexOf(selected);
+            if (idx < 0 || idx >= tasks.Count)
+            {
+                AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
+            }
+
+            var task = tasks[idx];
+            tasks.Remove(task);
+            TaskRepository.SaveTasks(tasks);
+            AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich gelöscht![/]");
+
+            var total = tasks.Count;
+            var open = tasks.Count(t => t.Status != TaskState.Done);
+            var today = tasks.Count(t => t.CreateAt.Date == DateTime.Now.Date);
+
+            BodyRightManager.SetTitle($"Aufgabe gelöscht: {task.Title}");
+            BodyRightManager.Set(
+                $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
+                $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
+                $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}" +
+                $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{task.Title}' gelöscht"
+            );
 
             UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
         }
@@ -98,21 +122,46 @@ namespace Aufgaben_Managment_Tool
         {
             var tasks = TaskRepository.LoadTasks();
 
-            var taskTitle = AnsiConsole.Prompt<string>(
-                new TextPrompt<string>("[bold yellow]Geben Sie den Titel der zu bearbeitenden Aufgabe ein:[/]")
-                .PromptStyle("green"));
-            var task = tasks.FirstOrDefault(t => t.Title.Equals(taskTitle, StringComparison.OrdinalIgnoreCase));
-            if (task == null)
+            if (tasks.Count == 0)
             {
-                AnsiConsole.MarkupLine("[bold red]Aufgabe nicht gefunden![/]");
-                BodyRightManager.SetTitle("Bearbeiten fehlgeschlagen");
-                BodyRightManager.Set($"Letzte Aktion: Bearbeiten fehlgeschlagen für Titel '{taskTitle}'");
+                BodyRightManager.SetTitle("Aufgabe bearbeiten");
+                BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
                 UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
                 return;
             }
 
+            var choices = tasks
+                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:yyyy-MM-dd})")
+                .ToList();
+
+            const string backDisplay = "[grey]←[/] [yellow]Zurück[/]";
+            choices.Add(backDisplay);
+
+            var selected = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title($"[bold yellow]Wähle die Aufgabe die bearbeitet werden soll:[/]")
+                    .PageSize(Math.Min(20, choices.Count))
+                    .AddChoices(choices)
+            );
+
+            if (selected == backDisplay)
+            {
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
+            }
+
+            var idx = choices.IndexOf(selected);
+            if (idx < 0 || idx >= tasks.Count)
+            {
+                AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
+            }
+
+            var task = tasks[idx];
+
             task.Title = AnsiConsole.Prompt<string>(
-                new TextPrompt<string>("[bold yellow]Neuen Aufgabentitel eingeben:[/]")
+                new TextPrompt<string>($"[bold yellow]Neuen Aufgabentitel eingeben:[/]")
                 .PromptStyle("green")
                 .DefaultValue(task.Title)
                 .Validate(title =>
@@ -123,18 +172,18 @@ namespace Aufgaben_Managment_Tool
                 }));
 
             task.Description = AnsiConsole.Prompt<string>(
-                new TextPrompt<string>("[bold yellow]Neue Aufgabenbeschreibung eingeben:[/]")
+                new TextPrompt<string>($"[bold yellow]Neue Aufgabenbeschreibung eingeben:[/]")
                 .PromptStyle("green")
                 .DefaultValue(task.Description));
 
             task.DueDate = AnsiConsole.Prompt<DateTime>(
-                new TextPrompt<DateTime>("[bold yellow]Neues Fälligkeitsdatum eingeben (Format: JJJJ-MM-TT):[/]")
+                new TextPrompt<DateTime>($"[bold yellow]Neues Fälligkeitsdatum eingeben (Format: JJJJ-MM-TT):[/]")
                 .PromptStyle("green")
                 .DefaultValue(task.DueDate));
 
             task.Status = AnsiConsole.Prompt<TaskState>(
                 new SelectionPrompt<TaskState>()
-                .Title("[bold yellow]Neuen Aufgabenstatus auswählen:[/]")
+                .Title($"[bold yellow]Neuen Aufgabenstatus auswählen:[/]")
                 .AddChoices(TaskState.ToDo, TaskState.InProgress, TaskState.Done));
 
             TaskRepository.SaveTasks(tasks);
@@ -414,15 +463,32 @@ namespace Aufgaben_Managment_Tool
             }
 
             var choices = tasks
-                .Select(t => $"{t.Title}")
+                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:yyyy-MM-dd})")
                 .ToList();
+
+            const string backDisplay = "[grey]←[/] [yellow]Zurück[/]";
+            choices.Add(backDisplay);
 
             var selectedLabel = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Wähle die Aufgabe, die du verschieben möchtest:")
+                    .PageSize(Math.Min(20, choices.Count))
                     .AddChoices(choices));
 
+            if (selectedLabel == backDisplay)
+            {
+                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                return;
+            }
+
             int idx = choices.IndexOf(selectedLabel);
+
+            if (idx < 0 || idx >= tasks.Count)
+            {
+                AnsiConsole.MarkupLine("[red]Auswahl ungültig.[/]");
+                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                return;
+            }
 
             var task = tasks[idx];
 
@@ -441,11 +507,12 @@ namespace Aufgaben_Managment_Tool
                 return;
             }
 
+            var oldStatus = task.Status;
             task.Status = newStatus;
             TaskRepository.SaveTasks(tasks);
 
             MenuSystem.UpdateMainOverview(
-                $"Aufgabe '{task.Title}' verschoben von {task.Status} zu {newStatus}.{Environment.NewLine}Fällig: {task.DueDate:yyyy-MM-dd}");
+                $"Aufgabe '{task.Title}' verschoben von {oldStatus} zu {newStatus}.{Environment.NewLine}Fällig: {task.DueDate:yyyy-MM-dd}");
             AnsiConsole.MarkupLine("[green]Status erfolgreich geändert.[/]");
             UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
         }
@@ -463,14 +530,23 @@ namespace Aufgaben_Managment_Tool
             }
 
             var choices = tasks
-                .Select(t => $"{(t.Title)}  (Fällig: {t.DueDate:yyyy-MM-dd})")
+                .Select(t => $"{t.Title}  (Fällig: {t.DueDate:yyyy-MM-dd})")
                 .ToList();
+
+            const string backDisplay = "[grey]←[/] [yellow]Zurück[/]";
+            choices.Add(backDisplay);
 
             var selected = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Wähle eine Aufgabe zum Anzeigen:")
                     .PageSize(Math.Min(14, choices.Count))
                     .AddChoices(choices));
+
+            if (selected == backDisplay)
+            {
+                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                return;
+            }
 
             var index = choices.IndexOf(selected);
             if (index < 0 || index >= tasks.Count)
@@ -486,18 +562,17 @@ namespace Aufgaben_Managment_Tool
             table.AddColumn(new TableColumn("").LeftAligned().Width(18));
             table.AddColumn(new TableColumn("").LeftAligned());
 
-            table.AddRow("[grey]Titel[/]", $"[bold yellow]{(task.Title)}[/]");
-            table.AddRow("[grey]Beschreibung[/]", string.IsNullOrWhiteSpace(task.Description) ? "[grey]—[/]" : (task.Description));
+            table.AddRow("[grey]Titel[/]", $"[bold yellow]{task.Title}[/]");
+            table.AddRow("[grey]Beschreibung[/]", string.IsNullOrWhiteSpace(task.Description) ? "[grey]—[/]" : task.Description);
             table.AddRow("[grey]Erstellt[/]", task.CreateAt.ToString("yyyy-MM-dd HH:mm"));
             table.AddRow("[grey]Fälligkeitsdatum[/]", task.DueDate.ToString("yyyy-MM-dd"));
             table.AddRow("[grey]Status[/]", task.Status.ToString());
-            table.AddRow("[grey]Zugewiesen an[/]", string.IsNullOrWhiteSpace(task.AssignedUser) ? "[grey]—[/]" : (task.AssignedUser));
+            table.AddRow("[grey]Zugewiesen an[/]", string.IsNullOrWhiteSpace(task.AssignedUser) ? "[grey]—[/]" : task.AssignedUser);
             table.AddRow("[grey]ID[/]", task.Id.ToString());
 
             BodyRightManager.SetTitle($"Aufgabe: {task.Title}");
             BodyRightManager.SetRenderable(table);
             UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
         }
-
     }
 }
