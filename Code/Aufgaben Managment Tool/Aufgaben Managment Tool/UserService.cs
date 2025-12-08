@@ -152,7 +152,7 @@ namespace Aufgaben_Managment_Tool
                 else 
                 {
 
-                    MenuSystem.UpdateMainOverview();
+                    MenuSystem.UpdateMainOverview("Benutzer angezeigt");
                     break;
                 }
             }

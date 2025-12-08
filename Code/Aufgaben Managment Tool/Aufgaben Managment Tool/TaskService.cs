@@ -1,5 +1,8 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Rendering;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Aufgaben_Managment_Tool
 {
@@ -142,10 +145,6 @@ namespace Aufgaben_Managment_Tool
             var today = tasks.Count(t => t.CreateAt.Date == DateTime.Now.Date);
 
             BodyRightManager.SetTitle($"Aufgabe aktualisiert: {task.Title}");
-            //BodyRightManager.Set(
-            //    $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
-            //    $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
-            //    $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}"
             MenuSystem.UpdateMainOverview
             (
                 $"{Environment.NewLine}- Aufgabe '{task.Title}' aktualisiert{Environment.NewLine}{Environment.NewLine}" +
@@ -331,6 +330,126 @@ namespace Aufgaben_Managment_Tool
                 //UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
                 break;
             }
+        }
+
+        public static void ShowKanbanBoard()
+        {
+            var tasks = TaskRepository.LoadTasks().OrderBy(t => t.DueDate).ToList();
+
+            var todo = tasks.Where(t => t.Status == TaskState.ToDo).ToList();
+            var inProgress = tasks.Where(t => t.Status == TaskState.InProgress).ToList();
+            var done = tasks.Where(t => t.Status == TaskState.Done).ToList();
+
+            // Berechne, wie viele Einträge pro Spalte in den sichtbaren Body passen
+            int totalHeight = Console.WindowHeight;
+            int bodyHeight = (int)(totalHeight * 0.60);
+            // jede Aufgabe benötigt ungefähr 2 Zeilen (Titel + Fälligkeitsdatum)
+            // Rand/Überschrift/Borders abziehen -> -4
+            int rowsPerColumn = Math.Max(1, (bodyHeight - 5) / 2);
+
+            int maxColumnItems = Math.Max(todo.Count, Math.Max(inProgress.Count, done.Count));
+            int pages = (maxColumnItems + rowsPerColumn - 1) / rowsPerColumn;
+
+            int page = 0;
+
+            while (true)
+            {
+                var todoPage = todo.Skip(page * rowsPerColumn).Take(rowsPerColumn).ToList();
+                var inProgPage = inProgress.Skip(page * rowsPerColumn).Take(rowsPerColumn).ToList();
+                var donePage = done.Skip(page * rowsPerColumn).Take(rowsPerColumn).ToList();
+
+                var table = new Table().Border(TableBorder.Rounded).Expand();
+                table.AddColumn(new TableColumn("[bold]To Do[/]").Centered());
+                table.AddColumn(new TableColumn("[bold]In Progress[/]").Centered());
+                table.AddColumn(new TableColumn("[bold]Done[/]").Centered());
+
+                for (int r = 0; r < rowsPerColumn; r++)
+                {
+                    string cellTodo = r < todoPage.Count ? $"[bold yellow]{todoPage[r].Title}[/]\n[grey]Fällig: {todoPage[r].DueDate:yyyy-MM-dd}[/]" : "";
+                    string cellInProg = r < inProgPage.Count ? $"[bold yellow]{inProgPage[r].Title}[/]\n[grey]Fällig: {inProgPage[r].DueDate:yyyy-MM-dd}[/]" : "";
+                    string cellDone = r < donePage.Count ? $"[bold yellow]{donePage[r].Title}[/]\n[grey]Fällig: {donePage[r].DueDate:yyyy-MM-dd}[/]" : "";
+                
+                    table.AddRow(cellTodo, cellInProg, cellDone);
+                }
+
+                BodyRightManager.SetTitle($"Kanban-Board — Seite {page + 1}/{pages}");
+                BodyRightManager.SetRenderable(table);
+                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+
+                var actions = new List<string>();
+                if (page < pages - 1) actions.Add("Weiter →");
+                if (page > 0) actions.Add("← Zurück");
+                actions.Add("Zurück zum Menü");
+
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Wähle Aktion:")
+                        .AddChoices(actions));
+
+                if (choice == "Weiter →")
+                {
+                    page++;
+                    continue;
+                }
+                else if (choice == "← Zurück")
+                {
+                    page--;
+                    continue;
+                }
+                else
+                {
+                    MenuSystem.UpdateMainOverview("Kanban-Board angezeigt");
+                    break;
+                }
+            }
+        }
+
+        public static void changeTaskStatus()
+        {
+            var tasks = TaskRepository.LoadTasks().OrderBy(t => t.DueDate).ToList();
+            if (tasks.Count == 0)
+            {
+                BodyRightManager.SetTitle("Kanban - Verschieben");
+                BodyRightManager.Set("[grey]Keine Aufgaben vorhanden[/]");
+                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                return;
+            }
+
+            var choices = tasks
+                .Select(t => $"{t.Title}")
+                .ToList();
+
+            var selectedLabel = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Wähle die Aufgabe, die du verschieben möchtest:")
+                    .AddChoices(choices));
+
+            int idx = choices.IndexOf(selectedLabel);
+
+            var task = tasks[idx];
+
+            var newStatus = AnsiConsole.Prompt<TaskState>(
+                new SelectionPrompt<TaskState>()
+                    .Title($"Neuen Status für '{task.Title}' wählen (aktuell: {task.Status}):")
+                    .AddChoices(TaskState.ToDo, TaskState.InProgress, TaskState.Done)
+                    .PageSize(3));
+
+            if (newStatus == task.Status)
+            {
+                AnsiConsole.MarkupLine("[yellow]Status unverändert.[/]");
+                BodyRightManager.SetTitle("Verschieben abgebrochen");
+                BodyRightManager.Set($"Aufgabe '{task.Title}' bleibt im Status {task.Status}.");
+                UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
+                return;
+            }
+
+            task.Status = newStatus;
+            TaskRepository.SaveTasks(tasks);
+
+            MenuSystem.UpdateMainOverview(
+                $"Aufgabe '{task.Title}' verschoben von {task.Status} zu {newStatus}.{Environment.NewLine}Fällig: {task.DueDate:yyyy-MM-dd}");
+            AnsiConsole.MarkupLine("[green]Status erfolgreich geändert.[/]");
+            UIRenderer.Refresh(MenuSystem.kanbanBoardMenuText, "Kanban-Board");
         }
     }
 }

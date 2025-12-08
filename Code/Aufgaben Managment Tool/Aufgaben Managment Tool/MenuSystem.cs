@@ -25,9 +25,8 @@ namespace Aufgaben_Managment_Tool
         public static List<Markup> kanbanBoardMenuText = new List<Markup>
         {
             new Markup("[green]>[/] [grey100]1. Board anzeigen[/]"),
-            new Markup("[green]>[/] [grey100]2. Board bearbeiten[/]"),
-            new Markup("[green]>[/] [grey100]3. Board löschen[/]"),
-            new Markup("[green]>[/] [grey100]4. Zurück[/]")
+            new Markup("[green]>[/] [grey100]2. Aufgabe verschieben[/]"),
+            new Markup("[green]>[/] [grey100]3. Zurück[/]")
         };
         public static List<Markup> searchMenuText = new List<Markup>
         {
@@ -163,15 +162,14 @@ namespace Aufgaben_Managment_Tool
                 switch (choice)
                 {
                     case 1:
-                        // Board anzeigen logic here
+                        TaskService.ShowKanbanBoard();
+                        UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 2:
-                        // Board bearbeiten logic here
+                        TaskService.changeTaskStatus();
+                        UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 3:
-                        // Board löschen logic here
-                        break;
-                    case 4:
                         UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         break;
                 }
