@@ -8,8 +8,7 @@ namespace Aufgaben_Managment_Tool
     {
         public static void CreateUserAdmin()
         {
-            var repository = new UserRepository();
-            var users = repository.LoadUsers();
+            var users = UserRepository.LoadUsers();
 
             var user = new User();
 
@@ -38,7 +37,7 @@ namespace Aufgaben_Managment_Tool
             user.SetPassword();
 
             users.Add(user);
-            repository.SaveUsers(users);
+            UserRepository.SaveUsers(users);
 
             AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} mit Rolle {user.Role} wurde erstellt.[/]");
 
@@ -55,8 +54,7 @@ namespace Aufgaben_Managment_Tool
         }
         public static void CreateUser()
         {
-            var repository = new UserRepository();
-            var users = repository.LoadUsers();
+            var users = UserRepository.LoadUsers();
 
             var user = new User();
 
@@ -82,7 +80,7 @@ namespace Aufgaben_Managment_Tool
             user.SetPassword();
 
             users.Add(user);
-            repository.SaveUsers(users);
+            UserRepository.SaveUsers(users);
 
             AnsiConsole.MarkupLine($"[green]Registrierung erfolgreich. Benutzer {user.Username} wurde mit Rolle {user.Role} angelegt.[/]");
 
@@ -100,8 +98,7 @@ namespace Aufgaben_Managment_Tool
 
         public static void GetUsers()
         {
-            var repository = new UserRepository();
-            var users = repository.LoadUsers().OrderBy(u => u.Username).ToList();
+            var users = UserRepository.LoadUsers().OrderBy(u => u.Username).ToList();
 
             if (users.Count == 0)
             {
@@ -156,15 +153,13 @@ namespace Aufgaben_Managment_Tool
                 {
 
                     MenuSystem.UpdateMainOverview();
-                    UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
                     break;
                 }
             }
         }
         public static void UpdateUser()
         {
-            var repository = new UserRepository();
-            var users = repository.LoadUsers();
+            var users = UserRepository.LoadUsers();
             var username = AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("Bitte geben Sie den Benutzernamen des zu bearbeitenden Benutzers ein:"));
 
@@ -238,7 +233,7 @@ namespace Aufgaben_Managment_Tool
             if (changePassword)
                 user.SetPassword();
 
-            repository.SaveUsers(users);
+            UserRepository.SaveUsers(users);
 
             AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} wurde aktualisiert.[/]");
 
@@ -255,8 +250,7 @@ namespace Aufgaben_Managment_Tool
         }
         public static void DeleteUser()
         {
-            var repository = new UserRepository();
-            var users = repository.LoadUsers();
+            var users = UserRepository.LoadUsers();
 
             var username = AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("Bitte geben Sie den Benutzernamen des zu löschenden Benutzers ein:"));
@@ -280,7 +274,7 @@ namespace Aufgaben_Managment_Tool
             }
 
             users.Remove(user);
-            repository.SaveUsers(users);
+            UserRepository.SaveUsers(users);
 
             AnsiConsole.MarkupLine($"[green]Benutzer {user.Username} wurde gelöscht.[/]");
 
@@ -292,8 +286,6 @@ namespace Aufgaben_Managment_Tool
                 $"Administratoren: {admins}{Environment.NewLine}{Environment.NewLine}" +
                 $"Letzte Aktion:{Environment.NewLine}- Benutzer '{user.Username}' gelöscht"
             );
-
-            UIRenderer.Refresh(MenuSystem.userMenuText, "Benutzerverwaltung");
         }
     }
 }

@@ -82,7 +82,7 @@ namespace Aufgaben_Managment_Tool
 
             return new Panel(content)
             {
-                Border = BoxBorder.Rounded,
+                Border = BoxBorder.Double,
                 Header = new PanelHeader($"[yellow]{title}[/]"),
                 Padding = new Padding(0, 0),
                 Expand = true

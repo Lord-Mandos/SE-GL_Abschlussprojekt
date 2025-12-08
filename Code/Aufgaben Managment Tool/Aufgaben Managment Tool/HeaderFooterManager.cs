@@ -10,7 +10,7 @@ namespace Aufgaben_Managment_Tool
             var title = new Markup("[bold red]TaskHub[/]");
             return new Panel(Align.Center(title, VerticalAlignment.Middle))
             {
-                Border = BoxBorder.Rounded,
+                Border = BoxBorder.Double,
                 Padding = new Padding(1, 0),
                 Expand = true
             };
@@ -18,8 +18,7 @@ namespace Aufgaben_Managment_Tool
 
         public static Panel GetHeaderRight()
         {
-            var repo = new TaskRepository();
-            var tasks = repo.LoadTasks();
+            var tasks = TaskRepository.LoadTasks();
             var todayCount = tasks.Count(t => t.DueDate.Date == DateTime.Now.Date);
             var openCount = tasks.Count(t => t.Status != TaskState.Done);
 
@@ -48,7 +47,7 @@ namespace Aufgaben_Managment_Tool
 
             return new Panel(inner)
             {
-                Border = BoxBorder.Rounded,
+                Border = BoxBorder.Double,
                 Padding = new Padding(0, 0),
                 Expand = true
             };
@@ -63,11 +62,11 @@ namespace Aufgaben_Managment_Tool
             var left = new Markup($"User: [yellow]{user}[/]");
             var right = new Markup($"[grey]{date}[/]");
 
-            grid.AddRow(left, Align.Right(right, VerticalAlignment.Middle));
+            grid.AddRow(Align.Left(left, VerticalAlignment.Middle), Align.Right(right, VerticalAlignment.Middle));
 
             return new Panel(grid)
             {
-                Border = BoxBorder.Rounded,
+                Border = BoxBorder.Double,
                 Padding = new Padding(1, 0),
                 Expand = true
             };

@@ -7,16 +7,14 @@ namespace Aufgaben_Managment_Tool
     {
         public static void createTask()
         {
-            var _taskRepository = new TaskRepository();
-
-            var tasks = _taskRepository.LoadTasks();
+            var tasks = TaskRepository.LoadTasks();
 
             var newTask = new TaskItem();
 
             newTask.Id = Guid.NewGuid();
             newTask.CreateAt = DateTime.Now;
             newTask.Status = TaskState.ToDo;
-            //newTask.AssignedUser =  Assigned User wir hier festgelegt über eingeloggten User
+            newTask.AssignedUser = Session.CurrentUser?.Username ?? "Unbekannt";
 
             newTask.Title = AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("[bold yellow]Aufgaben Titel eingeben:[/]")
@@ -37,7 +35,7 @@ namespace Aufgaben_Managment_Tool
                 .PromptStyle("green"));
 
             tasks.Add(newTask);
-            _taskRepository.SaveTasks(tasks);
+            TaskRepository.SaveTasks(tasks);
 
             var total = tasks.Count;
             var open = tasks.Count(t => t.Status != TaskState.Done);
@@ -58,8 +56,8 @@ namespace Aufgaben_Managment_Tool
 
         public static void deleteTask()
         {
-            var _taskRepository = new TaskRepository();
-            var tasks = _taskRepository.LoadTasks();
+
+            var tasks = TaskRepository.LoadTasks();
             var taskTitle = AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("[bold yellow]Geben Sie den Titel der zu löschenden Aufgabe ein:[/]")
                 .PromptStyle("green"));
@@ -68,7 +66,7 @@ namespace Aufgaben_Managment_Tool
             if (task != null)
             {
                 tasks.Remove(task);
-                _taskRepository.SaveTasks(tasks);
+                TaskRepository.SaveTasks(tasks);
                 AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich gelöscht![/]");
 
                 var total = tasks.Count;
@@ -95,8 +93,7 @@ namespace Aufgaben_Managment_Tool
 
         public static void updateTask()
         {
-            var _taskRepository = new TaskRepository();
-            var tasks = _taskRepository.LoadTasks();
+            var tasks = TaskRepository.LoadTasks();
 
             var taskTitle = AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("[bold yellow]Geben Sie den Titel der zu bearbeitenden Aufgabe ein:[/]")
@@ -137,7 +134,7 @@ namespace Aufgaben_Managment_Tool
                 .Title("[bold yellow]Neuen Aufgabenstatus auswählen:[/]")
                 .AddChoices(TaskState.ToDo, TaskState.InProgress, TaskState.Done));
 
-            _taskRepository.SaveTasks(tasks);
+            TaskRepository.SaveTasks(tasks);
             AnsiConsole.MarkupLine("[bold green]Aufgabe erfolgreich aktualisiert![/]");
 
             var total = tasks.Count;
@@ -145,11 +142,13 @@ namespace Aufgaben_Managment_Tool
             var today = tasks.Count(t => t.CreateAt.Date == DateTime.Now.Date);
 
             BodyRightManager.SetTitle($"Aufgabe aktualisiert: {task.Title}");
-            BodyRightManager.Set(
-                $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
-                $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
-                $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}" +
-                $"Letzte Aktion:{Environment.NewLine}- Aufgabe '{task.Title}' aktualisiert{Environment.NewLine}{Environment.NewLine}" +
+            //BodyRightManager.Set(
+            //    $"Anzahl aufg. Heute: {today}{Environment.NewLine}" +
+            //    $"Gesamt aufg. offen: {open}{Environment.NewLine}" +
+            //    $"Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}"
+            MenuSystem.UpdateMainOverview
+            (
+                $"{Environment.NewLine}- Aufgabe '{task.Title}' aktualisiert{Environment.NewLine}{Environment.NewLine}" +
                 $"Status: {task.Status}{Environment.NewLine}" +
                 $"Fällig: {task.DueDate:yyyy-MM-dd}"
             );
@@ -159,8 +158,8 @@ namespace Aufgaben_Managment_Tool
 
         public static void ShowTasks()
         {
-            var repo = new TaskRepository();
-            var tasks = repo.LoadTasks().OrderBy(t => t.DueDate).ToList();
+            var tasks = TaskRepository.LoadTasks().OrderBy(t => t.DueDate).ToList();
+            tasks.Reverse();
 
             if (tasks.Count == 0)
             {
@@ -308,8 +307,8 @@ namespace Aufgaben_Managment_Tool
                 UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
 
                 var actions = new List<string>();
-                if (page > 0) actions.Add("← Zurück");
                 if (page < pages - 1) actions.Add("Weiter →");
+                if (page > 0) actions.Add("← Zurück");
                 actions.Add("Zurück zum Menü");
 
                 var choice = AnsiConsole.Prompt(
@@ -328,8 +327,8 @@ namespace Aufgaben_Managment_Tool
                     continue;
                 }
 
-                MenuSystem.UpdateMainOverview();
-                UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
+                MenuSystem.UpdateMainOverview("Aufgaben angezeigt");
+                //UIRenderer.Refresh(MenuSystem.taskMenuText, "Aufgabenverwaltung");
                 break;
             }
         }

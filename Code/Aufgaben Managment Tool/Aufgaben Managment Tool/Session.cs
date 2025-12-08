@@ -8,17 +8,18 @@ namespace Aufgaben_Managment_Tool
         {
             CurrentUser = null;
 
-            BodyRightManager.SetTitle("Willkommen");
-            BodyRightManager.Set(
-                "Willkommen bei [bold yellow]TaskHub[/]." + Environment.NewLine +
-                "Wähle 'Login' um dich anzumelden oder 'Registrierung' um einen neuen Benutzer anzulegen." + Environment.NewLine +
-                "Benutze die Nummern im Menü zur Navigation."
-            );
+            
 
             while (true)
             {
                 if (CurrentUser == null)
                 {
+                    BodyRightManager.SetTitle("Willkommen");
+                    BodyRightManager.Set(
+                        "Willkommen bei [bold yellow]TaskHub[/]." + Environment.NewLine +
+                        "Wähle 'Login' um dich anzumelden oder 'Registrierung' um einen neuen Benutzer anzulegen." + Environment.NewLine +
+                        "Benutze die Nummern im Menü zur Navigation."
+                    );
                     UIRenderer.UIMain(MenuSystem.StartMenu, "Startmenü");
                 }
                 else

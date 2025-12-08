@@ -7,47 +7,47 @@ namespace Aufgaben_Managment_Tool
     {
         public static List<Markup> mainMenuText = new List<Markup>
         {
-            new Markup("[green]>[/] 1. Aufgabenverwaltung"),
-            new Markup("[green]>[/] 2. Kanban-Board"),
-            new Markup("[green]>[/] 3. Suchen"),
-            new Markup("[green]>[/] 4. Abmelden"),
-            new Markup("[green]>[/] 5. Benutzerverwaltung"),
-            new Markup("[green]>[/] 6. Beenden")
+            new Markup("[green]>[/] [grey100]1. Aufgabenverwaltung[/]"),
+            new Markup("[green]>[/] [grey100]2. Kanban-Board[/]"),
+            new Markup("[green]>[/] [grey100]3. Suchen[/]"),
+            new Markup("[green]>[/] [grey100]4. Abmelden[/]"),
+            new Markup("[green]>[/] [grey100]5. Benutzerverwaltung[/]"),
+            new Markup("[green]>[/] [grey100]6. Beenden[/]")
         };
         public static List<Markup> taskMenuText = new List<Markup>
         {
-            new Markup("[green]>[/] 1. Aufgabe erstellen"),
-            new Markup("[green]>[/] 2. Aufgabe anzeigen"),
-            new Markup("[green]>[/] 3. Aufgabe bearbeiten"),
-            new Markup("[green]>[/] 4. Aufgabe löschen"),
-            new Markup("[green]>[/] 5. Zurück")
+            new Markup("[green]>[/] [grey100]1. Aufgabe erstellen[/]"),
+            new Markup("[green]>[/] [grey100]2. Aufgabe anzeigen[/]"),
+            new Markup("[green]>[/] [grey100]3. Aufgabe bearbeiten[/]"),
+            new Markup("[green]>[/] [grey100]4. Aufgabe löschen[/]"),
+            new Markup("[green]>[/] [grey100]5. Zurück[/]")
         };
         public static List<Markup> kanbanBoardMenuText = new List<Markup>
         {
-            new Markup("[green]>[/] 1. Board anzeigen"),
-            new Markup("[green]>[/] 2. Board bearbeiten"),
-            new Markup("[green]>[/] 3. Board löschen"),
-            new Markup("[green]>[/] 4. Zurück")
+            new Markup("[green]>[/] [grey100]1. Board anzeigen[/]"),
+            new Markup("[green]>[/] [grey100]2. Board bearbeiten[/]"),
+            new Markup("[green]>[/] [grey100]3. Board löschen[/]"),
+            new Markup("[green]>[/] [grey100]4. Zurück[/]")
         };
         public static List<Markup> searchMenuText = new List<Markup>
         {
-            new Markup("[green]>[/] 1. Nach ID suchen"),
-            new Markup("[green]>[/] 2. Nach Titel suchen"),
-            new Markup("[green]>[/] 3. Zurück")
+            new Markup("[green]>[/] [grey100]1. Nach ID suchen[/]"),
+            new Markup("[green]>[/] [grey100]2. Nach Titel suchen[/]"),
+            new Markup("[green]>[/] [grey100]3. Zurück[/]")
         };
         public static List<Markup> userMenuText = new List<Markup>
         {
-            new Markup("[green]>[/] 1. Benutzer erstellen"),
-            new Markup("[green]>[/] 2. Benutzer anzeigen"),
-            new Markup("[green]>[/] 3. Benutzer bearbeiten"),
-            new Markup("[green]>[/] 4. Benutzer löschen"),
-            new Markup("[green]>[/] 5. Zurück")
+            new Markup("[green]>[/] [grey100]1. Benutzer erstellen[/]"),
+            new Markup("[green]>[/] [grey100]2. Benutzer anzeigen[/]"),
+            new Markup("[green]>[/] [grey100]3. Benutzer bearbeiten[/]"),
+            new Markup("[green]>[/] [grey100]4. Benutzer löschen[/]"),
+            new Markup("[green]>[/] [grey100]5. Zurück[/]")
         };
         public static List<Markup> StartMenu = new List<Markup>
         {
-            new Markup("[green]>[/] 1. Login"),
-            new Markup("[green]>[/] 2. Registrierung"),
-            new Markup("[green]>[/] 3. Beenden")
+            new Markup("[green]>[/] [grey100]1. Login[/]"),
+            new Markup("[green]>[/] [grey100]2. Registrierung[/]"),
+            new Markup("[green]>[/] [grey100]3. Beenden[/]")
         };
         public static Panel MenuPanel(List<Markup> menuText, string menuTitle)
         {
@@ -58,6 +58,7 @@ namespace Aufgaben_Managment_Tool
                 Header = new PanelHeader($"[yellow]{menuTitle}[/]"),
             })
             {
+                Border = BoxBorder.Double,
                 Padding = new Padding(3, 1, 7, 0),
                 Expand = true
             };
@@ -65,20 +66,21 @@ namespace Aufgaben_Managment_Tool
             return panel;
         }
 
-        public static void UpdateMainOverview()
+        public static void UpdateMainOverview(string action = "Menü geöffnet")
         {
-            var taskRepo = new TaskRepository();
-            var tasks = taskRepo.LoadTasks();
+            var tasks = TaskRepository.LoadTasks();
             var today = tasks.Count(t => t.DueDate.Date == DateTime.Now.Date);
             var open = tasks.Count(t => t.Status != TaskState.Done);
+            var total = tasks.Count;
             var user = Session.CurrentUser?.Username ?? "Nicht angemeldet";
 
             BodyRightManager.SetTitle("Übersicht");
             BodyRightManager.Set(
-                $"Benutzer: {user}{Environment.NewLine}" +
-                $"Aufgaben heute: {today}{Environment.NewLine}" +
+                $"\nBenutzer:        {user}{Environment.NewLine}" +
+                $"[grey100]Aufgaben heute:  {today}{Environment.NewLine}[/]" +
                 $"Offene Aufgaben: {open}{Environment.NewLine}{Environment.NewLine}" +
-                $"Letzte Aktion: Menü geöffnet"
+                $"[grey100]Gesamt Aufgaben: {total}{Environment.NewLine}{Environment.NewLine}[/]"+
+                $"Letzte Aktion:   {action}"
             );
         }
 
@@ -90,26 +92,29 @@ namespace Aufgaben_Managment_Tool
                 switch (choice)
                 {
                     case 1:
+                        UpdateMainOverview("Aufgabenverwaltung geöffnet");
                         UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 2:
+                        UpdateMainOverview("Kanban-Board geöffnet");
                         UIRenderer.UIMain(kanbanBoardMenuText, "Kanban-Board");
                         break;
                     case 3:
+                        UpdateMainOverview("Suchmenü geöffnet");
                         UIRenderer.UIMain(searchMenuText, "Suchen");
                         break;
                     case 4:
-                        new AuthManager().Logout();
-                        UIRenderer.UIMain(StartMenu, "Startmenü");
+                        AuthManager.Logout();
                         break;
                     case 5:
                         if (Session.CurrentUser != null && Session.CurrentUser.Role == UserRole.Admin)
                         {
+                            UpdateMainOverview("Benutzerverwaltung geöffnet");
                             UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
                         }
                         else
                         {
-                            AnsiConsole.MarkupLine("[red]Zugriff verweigert: Nur Administratoren dürfen die Benutzerverwaltung nutzen.[/]");
+                            UpdateMainOverview("[red]Zugriff verweigert: Nur Administratoren dürfen die Benutzerverwaltung nutzen.[/]");
                             UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         }
                         break;
@@ -129,17 +134,22 @@ namespace Aufgaben_Managment_Tool
                 {
                     case 1:
                         TaskService.createTask();
+                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 2:
                         TaskService.ShowTasks();
+                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 3:
                         TaskService.updateTask();
+                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 4:
                         TaskService.deleteTask();
+                        UIRenderer.UIMain(taskMenuText, "Aufgabenverwaltung");
                         break;
                     case 5:
+                        UpdateMainOverview("Zurück zum Hauptmenü");
                         UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         break;
                     default:
@@ -202,6 +212,7 @@ namespace Aufgaben_Managment_Tool
                         UIRenderer.UIMain(userMenuText, "Benutzerverwaltung");
                         break;
                     case 5:
+                        UpdateMainOverview("Zurück zum Hauptmenü");
                         UIRenderer.UIMain(mainMenuText, "Hauptmenü");
                         break;
                 }
@@ -211,11 +222,11 @@ namespace Aufgaben_Managment_Tool
                 switch (choice)
                 {
                     case 1:
-                        var auth = new AuthManager();
-                        if (auth.Login())
+                        if (AuthManager.Login())
                         {
-                            UpdateMainOverview();
+                            UpdateMainOverview("Eingeloggt");
                             UIRenderer.UIMain(mainMenuText, "Hauptmenü");
+                            break;
                         }
                         else
                         {
@@ -223,7 +234,7 @@ namespace Aufgaben_Managment_Tool
                         }
                         break;
                     case 2:
-                        new AuthManager().CreateUser();
+                        UserService.CreateUser();
                         UIRenderer.UIMain(StartMenu, "Startmenü");
                         break;
                     case 3:

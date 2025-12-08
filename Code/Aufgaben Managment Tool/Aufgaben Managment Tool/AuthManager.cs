@@ -1,17 +1,18 @@
 ﻿using Spectre.Console;
 using System;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Aufgaben_Managment_Tool
 {
-    internal class AuthManager
+    internal static class AuthManager
     {
-        public User? LoggedInUser => Session.CurrentUser;
+        public static User? LoggedInUser => Session.CurrentUser;
 
-        public bool Login()
+        public static bool Login()
         {
-            var repository = new UserRepository();
-            var users = repository.LoadUsers();
+            var users = UserRepository.LoadUsers();
 
             BodyRightManager.SetTitle("Login");
             BodyRightManager.Set("Bitte geben Sie Ihren Benutzernamen ein:");
@@ -40,8 +41,7 @@ namespace Aufgaben_Managment_Tool
             {
                 Session.CurrentUser = user;
 
-                var taskRepo = new TaskRepository();
-                var tasks = taskRepo.LoadTasks();
+                var tasks = TaskRepository.LoadTasks();
                 var today = tasks.Count(t => t.DueDate.Date == DateTime.Now.Date);
                 var open = tasks.Count(t => t.Status != TaskState.Done);
 
@@ -66,12 +66,7 @@ namespace Aufgaben_Managment_Tool
             }
         }
 
-        public void CreateUser()
-        {
-            UserService.CreateUser();
-        }
-
-        public void Logout()
+        public static void Logout()
         {
             if (Session.CurrentUser != null)
             {
@@ -80,6 +75,8 @@ namespace Aufgaben_Managment_Tool
                 BodyRightManager.SetTitle("Abmeldung");
                 BodyRightManager.Set("Sie wurden erfolgreich abgemeldet.");
                 UIRenderer.Refresh(MenuSystem.StartMenu, "Startmenü");
+                System.Threading.Thread.Sleep(5000);
+
             }
             else
             {
@@ -87,7 +84,7 @@ namespace Aufgaben_Managment_Tool
             }
         }
 
-        public bool IsAdmin()
+        public static bool IsAdmin()
         {
             return Session.CurrentUser != null && Session.CurrentUser.Role == UserRole.Admin;
         }
